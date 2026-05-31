@@ -1,6 +1,34 @@
 package com.ktb.community.user;
 
-// 실제 유저 관련 비즈니스 로직을 수행(회원가입 로직)
-public class UserService {
+import com.ktb.community.user.dto.SignupRequest;
+import com.ktb.community.user.dto.SignupResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
+// 실제 유저 관련 비즈니스 로직을 수행(회원가입 로직)
+@Service
+@RequiredArgsConstructor
+public class UserService {
+    private final UserRepository userRepository;
+
+    // SignupRequest를 받고 이메일과 닉네임 중복을 확인 (Repository에 보냄)
+    // 중복 검사를 통과하면, User 엔티티를 만들고
+    // UserRepository를 통해 저장
+    // 이후, 응답객체 dto를 통해 반환
+    public SignupResponse signup(SignupRequest request){
+        if (userRepository.existsByEmail(request.getEmail())) {
+            // 중복 이메일 처리
+            throw new IllegalArgumentException("email_already_exists");
+        }
+        if (userRepository.existsByNickname(request.getNickname())){
+            // 중복 닉네임 처리
+            throw new IllegalArgumentException("nickname_already_exists");
+        }
+        // 들어온 값으로 user 객체 생성
+        User user = new User(request.getEmail(), request.getPassword(), request.getNickname(), request.getProfileImageUrl());
+        // DB에 저장
+        User savedUser = userRepository.save(user);
+        // 응답 반환
+        return new SignupResponse(savedUser.getId());
+    }
 }
