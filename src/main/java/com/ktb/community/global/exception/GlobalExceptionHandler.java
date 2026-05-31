@@ -10,18 +10,21 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 // 각 예외 상황에 맞는 반환 값 정의
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-    // 이메일 중복 예외 처리를 위한 메소드
-    @ExceptionHandler(EmailAlreadyExistsException.class)
-    public ResponseEntity<ApiResponse<Void>> handleEmailAlreadyExists(){
-        return ResponseEntity
-                .status(HttpStatus.CONFLICT)
-                .body(new ApiResponse<>("email_already_exists", null));
-    }
 
-    @ExceptionHandler(NicknameAlreadyExistsException.class)
-    public ResponseEntity<ApiResponse<Void>> handleNicknameAlreadyExists(){
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ApiResponse<Void>> handleBusinessException(
+            BusinessException e
+    ) {
+
+        ErrorCode errorCode = e.getErrorCode();
+
         return ResponseEntity
-                .status(HttpStatus.CONFLICT)
-                .body(new ApiResponse<>("nickname_already_exists", null));
+                .status(errorCode.getStatus())
+                .body(
+                        new ApiResponse<>(
+                                errorCode.getMessage(),
+                                null
+                        )
+                );
     }
 }

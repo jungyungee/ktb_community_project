@@ -1,7 +1,7 @@
 package com.ktb.community.user;
 
-import com.ktb.community.global.exception.EmailAlreadyExistsException;
-import com.ktb.community.global.exception.NicknameAlreadyExistsException;
+import com.ktb.community.global.exception.BusinessException;
+import com.ktb.community.global.exception.ErrorCode;
 import com.ktb.community.user.dto.SignupRequest;
 import com.ktb.community.user.dto.SignupResponse;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 // 실제 유저 관련 비즈니스 로직을 수행(회원가입 로직)
 @Service
-@RequiredArgsConstructor
+@RequiredArgsConstructor // 생성자 자동 생성
 public class UserService {
     private final UserRepository userRepository;
 
@@ -20,11 +20,11 @@ public class UserService {
     public SignupResponse signup(SignupRequest request){
         if (userRepository.existsByEmail(request.getEmail())) {
             // 중복 이메일 처리
-            throw new EmailAlreadyExistsException();
+            throw new BusinessException(ErrorCode.EMAIL_ALREADY_EXISTS);
         }
         if (userRepository.existsByNickname(request.getNickname())){
             // 중복 닉네임 처리
-            throw new NicknameAlreadyExistsException();
+            throw new BusinessException(ErrorCode.NICKNAME_ALREADY_EXISTS);
         }
 
         // 들어온 값으로 user 객체 생성
