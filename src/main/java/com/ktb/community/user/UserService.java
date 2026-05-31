@@ -1,5 +1,7 @@
 package com.ktb.community.user;
 
+import com.ktb.community.global.exception.EmailAlreadyExistsException;
+import com.ktb.community.global.exception.NicknameAlreadyExistsException;
 import com.ktb.community.user.dto.SignupRequest;
 import com.ktb.community.user.dto.SignupResponse;
 import lombok.RequiredArgsConstructor;
@@ -18,11 +20,11 @@ public class UserService {
     public SignupResponse signup(SignupRequest request){
         if (userRepository.existsByEmail(request.getEmail())) {
             // 중복 이메일 처리
-            throw new IllegalArgumentException("email_already_exists");
+            throw new EmailAlreadyExistsException();
         }
         if (userRepository.existsByNickname(request.getNickname())){
             // 중복 닉네임 처리
-            throw new IllegalArgumentException("nickname_already_exists");
+            throw new NicknameAlreadyExistsException();
         }
 
         // 들어온 값으로 user 객체 생성

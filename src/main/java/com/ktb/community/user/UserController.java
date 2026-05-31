@@ -1,5 +1,6 @@
 package com.ktb.community.user;
 
+import com.ktb.community.global.response.ApiResponse;
 import com.ktb.community.user.dto.SignupRequest;
 import com.ktb.community.user.dto.SignupResponse;
 import lombok.RequiredArgsConstructor;
@@ -21,9 +22,10 @@ public class UserController {
     // userService.signup(request)로 호출해서 비즈니스 로직 수행
     // 응답으로 돌아온 SignupResponse 로 응답 보냄
     @PostMapping
-    public SignupResponse signup(
+    public ApiResponse<SignupResponse> signup(
             @RequestBody SignupRequest request
-    ) {
-        return userService.signup(request);
+    ){
+        SignupResponse response = userService.signup(request);
+        return new ApiResponse<>("user_created", response);
     }
 }
