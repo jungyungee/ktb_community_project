@@ -24,9 +24,10 @@ public class UserService {
             // 중복 닉네임 처리
             throw new IllegalArgumentException("nickname_already_exists");
         }
+
         // 들어온 값으로 user 객체 생성
         User user = new User(request.getEmail(), request.getPassword(), request.getNickname(), request.getProfileImageUrl());
-        // DB에 저장
+        // DB에 저장 (userRepository.save(user)의 결과를 savedUser에 담아서 응답 DTO 만듦)
         User savedUser = userRepository.save(user);
         // 응답 반환
         return new SignupResponse(savedUser.getId());
