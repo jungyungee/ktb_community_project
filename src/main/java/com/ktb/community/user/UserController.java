@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController //HTTP 요청을 처리하는 컨트롤러
-@RequestMapping("/users") //
+@RequestMapping("/users")
 @RequiredArgsConstructor // 생성자 자동생성 및 UserService 주입
 // POST /users 요청을 받는 컨트롤러
 public class UserController {

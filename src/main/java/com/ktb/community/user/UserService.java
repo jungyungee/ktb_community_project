@@ -27,6 +27,7 @@ public class UserService {
             throw new BusinessException(ErrorCode.NICKNAME_ALREADY_EXISTS);
         }
 
+        // 중복 확인 완료 시
         // 들어온 값으로 user 객체 생성
         User user = new User(request.getEmail(), request.getPassword(), request.getNickname(), request.getProfileImageUrl());
         // DB에 저장 (userRepository.save(user)의 결과를 savedUser에 담아서 응답 DTO 만듦)

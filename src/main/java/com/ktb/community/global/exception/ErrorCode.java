@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 @RequiredArgsConstructor
+// 상태코드와 메세지
 public enum ErrorCode {
     EMAIL_ALREADY_EXISTS(
             HttpStatus.CONFLICT,
