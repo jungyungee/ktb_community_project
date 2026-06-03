@@ -2,6 +2,7 @@ package com.ktb.community.user;
 
 import com.ktb.community.global.exception.BusinessException;
 import com.ktb.community.global.exception.ErrorCode;
+import com.ktb.community.global.security.PasswordHash;
 import com.ktb.community.user.dto.SignupRequest;
 import com.ktb.community.user.dto.SignupResponse;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor // 생성자 자동 생성
 public class UserService {
     private final UserRepository userRepository;
+    private final PasswordHash passwordHash;
 
     // SignupRequest를 받고 이메일과 닉네임 중복을 확인 (Repository에 보냄)
     // 중복 검사를 통과하면, User 엔티티를 만들고
@@ -28,8 +30,11 @@ public class UserService {
         }
 
         // 중복 확인 완료 시
+        // 비밀번호 해싱
+        String hashedPassword = passwordHash.hash(request.getPassword());
+
         // 들어온 값으로 user 객체 생성
-        User user = new User(request.getEmail(), request.getPassword(), request.getNickname(), request.getProfileImageUrl());
+        User user = new User(request.getEmail(), hashedPassword, request.getNickname(), request.getProfileImageUrl());
         // DB에 저장 (userRepository.save(user)의 결과를 savedUser에 담아서 응답 DTO 만듦)
         User savedUser = userRepository.save(user);
         // 응답 반환

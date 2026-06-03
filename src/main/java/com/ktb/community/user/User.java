@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Getter
-@NoArgsConstructor // JPA가 필요로 하는 기본 생성자
+@NoArgsConstructor // JPA가 필요로 하는 기본 생성자(엔티티)
 // 유저 엔티티 (DB에 만든 유저 테이블을 객체로)
 // 상태를 나타내는 status는 UserStatus enum 타입으로 정의
 @Entity
@@ -19,16 +19,20 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(nullable = false)
     private String password;
 
+    @Column(nullable = false, unique = true)
     private String nickname;
 
-    @Column(name = "profile_image_url")
+    @Column(name = "profile_image_url", nullable = false)
     private String profileImageUrl;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private UserStatus status;
 
     @Column(name ="created_at")
