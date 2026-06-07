@@ -38,4 +38,31 @@ public class JwtProvider {
                 .signWith(getSigningKey()) // 시크릿 키로 서명
                 .compact(); //토큰 생성
     }
+
+    // 액세스 토큰 검증 (유효한 토큰인지 검사)
+    public boolean validateToken(String accessToken){
+        try {
+            Jwts.parser()
+                    .verifyWith(getSigningKey()) // 시크릿 키로 검증
+                    .build() // 파서 생성
+                    .parseSignedClaims(accessToken); //토큰 해석, 서명 검증, 만료 시간 검증
+
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    // 토큰에서 유저 정보 추출
+    public Long getUserId(String accessToken){
+        String subject = Jwts.parser()
+                .verifyWith(getSigningKey())
+                .build()
+                .parseSignedClaims(accessToken) //토큰 검증
+                .getPayload()
+                .getSubject();
+
+        // String인 유저 아이디를 실제 ID 값으로 변환해서 반환
+        return Long.valueOf(subject);
+    }
 }
