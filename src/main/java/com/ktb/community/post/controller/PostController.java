@@ -4,6 +4,8 @@ import com.ktb.community.global.response.ApiResponse;
 import com.ktb.community.post.dto.PostRequest;
 import com.ktb.community.post.dto.PostResponse;
 import com.ktb.community.post.service.PostService;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,9 +27,11 @@ public class PostController {
     // 응답으로 PostResponse 내보냄
     @PostMapping
     public ApiResponse<PostResponse> createPost(
-            @Valid @RequestBody PostRequest request
+            @Valid @RequestBody PostRequest request,
+            HttpServletRequest servletRequest
             ){
-        PostResponse response = postService.post(request);
+        Long userId = (Long) servletRequest.getAttribute("userId");
+        PostResponse response = postService.createPost(userId, request);
         return new ApiResponse<>("post_created", response);
     }
 }

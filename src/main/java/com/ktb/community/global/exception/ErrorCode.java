@@ -30,6 +30,10 @@ public enum ErrorCode {
     INVALID_EMAIL_OR_PASSWORD(
             HttpStatus.UNAUTHORIZED,
             "invalid_email_or_password"
+    ),
+    USER_NOT_FOUND(
+            HttpStatus.NOT_FOUND,
+            "user_not_found"
     );
 
     // 필드
