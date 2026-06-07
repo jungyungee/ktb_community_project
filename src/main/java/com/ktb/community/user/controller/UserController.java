@@ -1,6 +1,7 @@
-package com.ktb.community.user;
+package com.ktb.community.user.controller;
 
 import com.ktb.community.global.response.ApiResponse;
+import com.ktb.community.user.service.UserService;
 import com.ktb.community.user.dto.SignupRequest;
 import com.ktb.community.user.dto.SignupResponse;
 import lombok.RequiredArgsConstructor;

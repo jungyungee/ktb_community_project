@@ -1,8 +1,10 @@
-package com.ktb.community.user;
+package com.ktb.community.user.service;
 
 import com.ktb.community.global.exception.BusinessException;
 import com.ktb.community.global.exception.ErrorCode;
 import com.ktb.community.global.security.PasswordHash;
+import com.ktb.community.user.entity.User;
+import com.ktb.community.user.repository.UserRepository;
 import com.ktb.community.user.dto.SignupRequest;
 import com.ktb.community.user.dto.SignupResponse;
 import lombok.RequiredArgsConstructor;

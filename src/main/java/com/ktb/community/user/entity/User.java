@@ -1,4 +1,4 @@
-package com.ktb.community.user;
+package com.ktb.community.user.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;

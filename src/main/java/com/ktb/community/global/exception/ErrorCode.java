@@ -26,6 +26,10 @@ public enum ErrorCode {
     INTERNAL_SERVER_ERROR(
             HttpStatus.INTERNAL_SERVER_ERROR,
             "internal_server_error"
+    ),
+    INVALID_EMAIL_OR_PASSWORD(
+            HttpStatus.UNAUTHORIZED,
+            "invalid_email_or_password"
     );
 
     // 필드
