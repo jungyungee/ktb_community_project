@@ -31,6 +31,10 @@ public enum ErrorCode {
             HttpStatus.UNAUTHORIZED,
             "invalid_email_or_password"
     ),
+    UNAUTHORIZED(
+            HttpStatus.UNAUTHORIZED,
+            "unauthorized"
+    ),
     USER_NOT_FOUND(
             HttpStatus.NOT_FOUND,
             "user_not_found"

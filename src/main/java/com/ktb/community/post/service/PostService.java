@@ -23,6 +23,10 @@ public class PostService {
     // PostRepository 불러서 저장
     // 응답 반환
     public PostResponse createPost(Long userId, PostRequest request){
+        if (userId == null) {
+            throw new BusinessException(ErrorCode.UNAUTHORIZED);
+        }
+
         // User 객체에 userId를 통해 user 찾아서 저장
         User user = userRepository.findById(userId)
                 .orElseThrow(()-> new BusinessException(ErrorCode.USER_NOT_FOUND));
