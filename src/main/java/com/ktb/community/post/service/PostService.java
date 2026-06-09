@@ -2,14 +2,16 @@ package com.ktb.community.post.service;
 
 import com.ktb.community.global.exception.BusinessException;
 import com.ktb.community.global.exception.ErrorCode;
+import com.ktb.community.post.dto.*;
 import com.ktb.community.user.entity.User;
-import com.ktb.community.post.dto.PostRequest;
-import com.ktb.community.post.dto.PostResponse;
 import com.ktb.community.post.entity.Post;
 import com.ktb.community.post.repository.PostRepository;
 import com.ktb.community.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 // 게시물 저장 관련 비즈니스 로직 수행
 @Service
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Service;
 public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+
     // 유저 Id에 따라 로그인 한 유저를 확인
     // (필터에서 userId가 request에 저장되어 있음)
     // Post 엔티티 생성
@@ -50,5 +53,41 @@ public class PostService {
                 savedPost.getPostImageUrl(),
                 savedPost.getCreatedAt()
         );
+    }
+
+    // 게시글 조회 로직
+    public PostListResponse getPostList(String cursor) {
+        int size = 10; // 길이 10
+        // 첫 페이지 경우 생각해서 null로 넣음
+        LocalDateTime cursorCreatedAt = null;
+        Long cursorId = null;
+
+        // cursor가 있으면 여기서 Base64 디코딩해서 cursorCreatedAt, cursorId를 꺼내서
+        // findPostsByCursor 로 찾음
+        List<Post> posts = postRepository.findPostsByCursor(
+                cursorCreatedAt,
+                cursorId,
+                size
+        );
+
+        boolean hasNext = posts.size() > size;
+        if (hasNext){
+            posts = posts.subList(0, size);
+        }
+
+        List<PostItemResponse> content = posts.stream()
+                .map(post -> new PostItemResponse(
+                        post.getId(),
+                        post.getTitle(),
+                        post.getLikeCount(),
+                        post.getCommentCount(),
+                        post.getViewCount(),
+                        post.getCreatedAt(),
+                        new PostAuthorResponse(
+                                post.getUser().getNickname(),
+                                post.getUser().getProfileImageUrl()
+                        )
+                ))
+                .toList();
     }
 }
