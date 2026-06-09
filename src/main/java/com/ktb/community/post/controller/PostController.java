@@ -5,7 +5,6 @@ import com.ktb.community.post.dto.PostListResponse;
 import com.ktb.community.post.dto.PostRequest;
 import com.ktb.community.post.dto.PostResponse;
 import com.ktb.community.post.service.PostService;
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

@@ -38,6 +38,10 @@ public enum ErrorCode {
     USER_NOT_FOUND(
             HttpStatus.NOT_FOUND,
             "user_not_found"
+    ),
+    INVALID_CURSOR(
+            HttpStatus.BAD_REQUEST,
+            "invalid_cursor"
     );
 
     // 필드
