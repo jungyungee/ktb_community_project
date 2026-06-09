@@ -75,6 +75,7 @@ public class PostService {
             posts = posts.subList(0, size);
         }
 
+        // List 내 각 Item 에 들어갈 값들
         List<PostItemResponse> content = posts.stream()
                 .map(post -> new PostItemResponse(
                         post.getId(),
@@ -89,5 +90,11 @@ public class PostService {
                         )
                 ))
                 .toList();
+
+        return new PostListResponse(
+                content,
+                null,
+                hasNext
+        );
     }
 }
