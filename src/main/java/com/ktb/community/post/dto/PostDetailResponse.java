@@ -1,9 +1,11 @@
 package com.ktb.community.post.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
 
+@AllArgsConstructor
 @Getter
 public class PostDetailResponse {
     private Long id;

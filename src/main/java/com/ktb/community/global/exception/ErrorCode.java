@@ -42,6 +42,10 @@ public enum ErrorCode {
     INVALID_CURSOR(
             HttpStatus.BAD_REQUEST,
             "invalid_cursor"
+    ),
+    POST_NOT_FOUND(
+            HttpStatus.NOT_FOUND,
+            "post_not_found"
     );
 
     // 필드
