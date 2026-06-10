@@ -1,6 +1,7 @@
 package com.ktb.community.post.controller;
 
 import com.ktb.community.global.response.ApiResponse;
+import com.ktb.community.post.dto.PostDetailResponse;
 import com.ktb.community.post.dto.PostListResponse;
 import com.ktb.community.post.dto.PostRequest;
 import com.ktb.community.post.dto.PostResponse;
@@ -42,5 +43,17 @@ public class PostController {
     ){
         PostListResponse response = postService.getPostList(cursor);
         return new ApiResponse<>("post_list_fetched", response);
+    }
+
+    // 게시물 단건 상세조회
+    @GetMapping("/{postId}")
+    public ApiResponse<PostDetailResponse> getPost(
+            // 게시글 id를 전달해야함
+            @PathVariable Long postId,
+            HttpServletRequest servletRequest
+    ){
+        Long userId = (Long) servletRequest.getAttribute("userId");
+        PostDetailResponse response = postService.getPost(userId, postId);
+        return new ApiResponse<>("post_fetched", response);
     }
 }

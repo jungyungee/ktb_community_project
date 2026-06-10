@@ -2,6 +2,7 @@ package com.ktb.community.post.service;
 
 import com.ktb.community.global.exception.BusinessException;
 import com.ktb.community.global.exception.ErrorCode;
+import com.ktb.community.like.repository.LikeRepository;
 import com.ktb.community.post.cursor.PostCursor;
 import com.ktb.community.post.dto.*;
 import com.ktb.community.user.entity.User;
@@ -22,6 +23,7 @@ import java.util.List;
 public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final LikeRepository likeRepository;
 
     // 유저 Id에 따라 로그인 한 유저를 확인
     // (필터에서 userId가 request에 저장되어 있음)
@@ -154,5 +156,38 @@ public class PostService {
         } catch (Exception e) {
             throw new BusinessException(ErrorCode.INVALID_CURSOR);
         }
+    }
+
+    // 게시물 단건 상세 조회
+    public PostDetailResponse getPost(Long userId, Long postId){
+        if (userId == null) {
+            throw new BusinessException(ErrorCode.UNAUTHORIZED);
+        }
+        //게시글 조회
+        Post post = postRepository.findById(postId)
+                .orElseThrow(()->
+                        new BusinessException(ErrorCode.POST_NOT_FOUND)
+                );
+        // 사용자 작성 게시글 여부 (수정, 삭제 권한을 위해)
+        boolean isOwner = post.getUser().getId().equals(userId);
+        // 사용자 좋아요 여부 (좋아요 중복 불가 및 취소 처리를 위해)
+        boolean liked = likeRepository.existsByUserIdAndPostId(userId, postId);
+
+        return new PostDetailResponse(
+                post.getId(),
+                post.getTitle(),
+                post.getContent(),
+                post.getPostImageUrl(),
+                post.getCreatedAt(),
+                new PostAuthorResponse(
+                        post.getUser().getNickname(),
+                        post.getUser().getProfileImageUrl()
+                ),
+                post.getLikeCount(),
+                post.getCommentCount(),
+                post.getViewCount(),
+                liked,
+                isOwner
+        );
     }
 }
