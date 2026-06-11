@@ -46,6 +46,10 @@ public enum ErrorCode {
     POST_NOT_FOUND(
             HttpStatus.NOT_FOUND,
             "post_not_found"
+    ),
+    NOT_POST_OWNER(
+            HttpStatus.FORBIDDEN,
+            "not_post_owner"
     );
 
     // 필드

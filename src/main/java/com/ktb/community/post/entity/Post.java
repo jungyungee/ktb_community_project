@@ -52,6 +52,13 @@ public class Post {
         this.postImageUrl = postImageUrl;
     }
 
+    // 게시글 수정
+    public void update(String title, String content, String postImageUrl){
+        this.title = title;
+        this.content = content;
+        this.postImageUrl = postImageUrl;
+    }
+
     @PrePersist
     public void onCreate(){
         this.createdAt = LocalDateTime.now();

@@ -190,4 +190,33 @@ public class PostService {
                 isOwner
         );
     }
+
+    // 게시글 수정
+    public PostUpdateResponse updatePost(Long userId, Long postId, PostUpdateRequest request){
+        if (userId == null) {
+            throw new BusinessException(ErrorCode.UNAUTHORIZED);
+        }
+
+        // Post Id를 통해 가져온 post에 새로운 값 업데이트
+        Post post = postRepository.findById(postId)
+                .orElseThrow(()-> new BusinessException(ErrorCode.POST_NOT_FOUND));
+        // 게시글의 작성자와 현재 로그인된 사용자가 일치하지 않을 시, 수정 불가
+        if (!post.getUser().getId().equals(userId)){
+            throw new BusinessException(ErrorCode.NOT_POST_OWNER);
+        }
+
+        post.update(
+                request.getTitle(),
+                request.getContent(),
+                request.getPostImageUrl()
+        );
+
+        return new PostUpdateResponse(
+                post.getId(),
+                post.getTitle(),
+                post.getContent(),
+                post.getPostImageUrl(),
+                post.getUpdatedAt()
+        );
+    }
 }

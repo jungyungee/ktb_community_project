@@ -1,10 +1,7 @@
 package com.ktb.community.post.controller;
 
 import com.ktb.community.global.response.ApiResponse;
-import com.ktb.community.post.dto.PostDetailResponse;
-import com.ktb.community.post.dto.PostListResponse;
-import com.ktb.community.post.dto.PostRequest;
-import com.ktb.community.post.dto.PostResponse;
+import com.ktb.community.post.dto.*;
 import com.ktb.community.post.service.PostService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -55,5 +52,17 @@ public class PostController {
         Long userId = (Long) servletRequest.getAttribute("userId");
         PostDetailResponse response = postService.getPost(userId, postId);
         return new ApiResponse<>("post_fetched", response);
+    }
+
+    // 게시글 수정
+    @PatchMapping("/{postId}")
+    public ApiResponse<PostUpdateResponse> updatePost(
+            @Valid @RequestBody PostUpdateRequest request,
+            @PathVariable Long postId,
+            HttpServletRequest servletRequest
+    ){
+        Long userId = (Long) servletRequest.getAttribute("userId");
+        PostUpdateResponse response = postService.updatePost(userId, postId, request);
+        return new ApiResponse<>("post_updated", response);
     }
 }
