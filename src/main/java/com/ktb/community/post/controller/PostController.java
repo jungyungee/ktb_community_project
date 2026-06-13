@@ -6,6 +6,7 @@ import com.ktb.community.post.service.PostService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -57,12 +58,24 @@ public class PostController {
     // 게시글 수정
     @PatchMapping("/{postId}")
     public ApiResponse<PostUpdateResponse> updatePost(
-            @Valid @RequestBody PostUpdateRequest request,
+            @RequestBody PostUpdateRequest request,
             @PathVariable Long postId,
             HttpServletRequest servletRequest
     ){
         Long userId = (Long) servletRequest.getAttribute("userId");
         PostUpdateResponse response = postService.updatePost(userId, postId, request);
         return new ApiResponse<>("post_updated", response);
+    }
+
+    // 게시글 삭제
+    @DeleteMapping("/{postId}")
+    // 따로 응답 타입이 없으므로 response status 붙임
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deletePost(
+            @PathVariable Long postId,
+            HttpServletRequest servletRequest
+    ){
+        Long userId = (Long) servletRequest.getAttribute("userId");
+        postService.deletePost(userId, postId);
     }
 }

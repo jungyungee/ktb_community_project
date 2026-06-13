@@ -12,6 +12,7 @@ import com.ktb.community.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.DeleteMapping;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -219,5 +220,22 @@ public class PostService {
         return new PostUpdateResponse(
                 post.getId()
         );
+    }
+
+    // 게시글 삭제
+    @Transactional
+    public void deletePost(Long userId, Long postId){
+        if (userId == null) {
+            throw new BusinessException(ErrorCode.UNAUTHORIZED);
+        }
+        // Post Id를 통해 가져온 post
+        Post post = postRepository.findById(postId)
+                .orElseThrow(()-> new BusinessException(ErrorCode.POST_NOT_FOUND));
+        // 게시글의 작성자와 현재 로그인된 사용자가 일치하지 않을 시, 삭제 불가
+        if (!post.getUser().getId().equals(userId)){
+            throw new BusinessException(ErrorCode.NOT_POST_OWNER);
+        }
+        // 게시글 삭제
+        postRepository.delete(post);
     }
 }
