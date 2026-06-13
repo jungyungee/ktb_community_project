@@ -28,6 +28,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
 
     // 댓글 추가
+    @Transactional
     public CommentResponse createComment(Long userId, Long postId, CommentRequest request){
         // 유저 로그인 상태 확인
         if (userId == null) {
@@ -191,5 +192,18 @@ public class CommentService {
                 comment.getContent(),
                 comment.getCreatedAt()
         );
+    }
+
+    // 댓글 삭제
+    public void deleteComment(Long userId, Long commentId){
+        if (userId == null) {
+            throw new BusinessException(ErrorCode.UNAUTHORIZED);
+        }
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(()->new BusinessException(ErrorCode.COMMENT_NOT_FOUND));
+        if(!comment.getUser().getId().equals(userId)){
+            throw new BusinessException(ErrorCode.NOT_COMMENT_OWNER);
+        }
+        commentRepository.delete(comment);
     }
 }

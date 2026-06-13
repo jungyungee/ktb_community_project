@@ -51,4 +51,14 @@ public class CommentController {
         CommentResponse response = commentService.updateComment(userId, commentId, request);
         return new ApiResponse<>("comment_updated", response);
     }
+
+    // 댓글 삭제
+    @DeleteMapping("/comments/{commentId}")
+    public void deleteComment(
+            @PathVariable Long commentId,
+            HttpServletRequest servletRequest
+    ){
+        Long userId = (Long) servletRequest.getAttribute("userId");
+        commentService.deleteComment(userId, commentId);
+    }
 }
