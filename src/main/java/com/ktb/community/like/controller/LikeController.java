@@ -24,6 +24,9 @@ public class LikeController {
     ){
         Long userId = (Long) servletRequest.getAttribute("userId");
         LikeResponse response = likeService.toggleLike(userId, postId);
-        return new ApiResponse<>("like_toggle_pressed", response);
+        // 좋아요 추가/취소 경우에 따라 응답 메세지 다르게 주기
+        String message = response.isLiked()
+                ?"post_liked":"post_unliked";
+        return new ApiResponse<>(message, response);
     }
 }
