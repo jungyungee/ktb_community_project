@@ -1,5 +1,6 @@
 package com.ktb.community.comment.controller;
 
+import com.ktb.community.comment.dto.CommentListResponse;
 import com.ktb.community.comment.dto.CommentRequest;
 import com.ktb.community.comment.dto.CommentResponse;
 import com.ktb.community.comment.service.CommentService;
@@ -24,5 +25,18 @@ public class CommentController {
         Long userId = (Long) servletRequest.getAttribute("userId");
         CommentResponse response = commentService.createComment(userId, postId, request);
         return new ApiResponse<>("comment_created", response);
+    }
+
+    // 댓글 리스트 조회
+    @GetMapping("/posts/{postId}/comments")
+    public ApiResponse<CommentListResponse> getCommentList(
+            // uri 의 파라미터로 받은 커서 값 String cursor에 저장 (디코딩은 서비스 로직에서)
+            @RequestParam(required = false) String cursor,
+            @PathVariable Long postId,
+            HttpServletRequest servletRequest
+    ){
+        Long userId = (Long) servletRequest.getAttribute("userId");
+        CommentListResponse response = commentService.getCommentList(cursor, postId, userId);
+        return new ApiResponse<>("comment_list_fetched", response);
     }
 }
