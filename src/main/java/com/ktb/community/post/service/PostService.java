@@ -9,6 +9,7 @@ import com.ktb.community.user.entity.User;
 import com.ktb.community.post.entity.Post;
 import com.ktb.community.post.repository.PostRepository;
 import com.ktb.community.user.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -192,6 +193,8 @@ public class PostService {
     }
 
     // 게시글 수정
+    // 트랜잭션을 활용 -> 영속성 컨텍스트의 변경감지를 활용해서 업데이트 가능
+    @Transactional
     public PostUpdateResponse updatePost(Long userId, Long postId, PostUpdateRequest request){
         if (userId == null) {
             throw new BusinessException(ErrorCode.UNAUTHORIZED);
@@ -205,18 +208,16 @@ public class PostService {
             throw new BusinessException(ErrorCode.NOT_POST_OWNER);
         }
 
+        // 업데이트 메서드
         post.update(
                 request.getTitle(),
                 request.getContent(),
-                request.getPostImageUrl()
+                request.getPostImageUrl(),
+                request.getDeleteImage()
         );
 
         return new PostUpdateResponse(
-                post.getId(),
-                post.getTitle(),
-                post.getContent(),
-                post.getPostImageUrl(),
-                post.getUpdatedAt()
+                post.getId()
         );
     }
 }

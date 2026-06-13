@@ -53,12 +53,22 @@ public class Post {
     }
 
     // 게시글 수정
-    public void update(String title, String content, String postImageUrl){
-        this.title = title;
-        this.content = content;
-        this.postImageUrl = postImageUrl;
+    public void update(String title, String content, String postImageUrl, Boolean deleteImage){
+        if(title != null){
+            this.title = title;
+        }
+        if(content != null){
+            this.content = content;
+        }
+        // 이미지 수정하지 않는 것과 이미지 삭제를 구분
+        if (Boolean.TRUE.equals(deleteImage)){
+            this.postImageUrl = null;
+        } else if (postImageUrl != null ){
+            this.postImageUrl = postImageUrl;
+        }
     }
 
+    // 게시물 작성 DB 생성 시간
     @PrePersist
     public void onCreate(){
         this.createdAt = LocalDateTime.now();
