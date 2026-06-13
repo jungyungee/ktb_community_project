@@ -30,6 +30,26 @@ public enum ErrorCode {
     INVALID_EMAIL_OR_PASSWORD(
             HttpStatus.UNAUTHORIZED,
             "invalid_email_or_password"
+    ),
+    UNAUTHORIZED(
+            HttpStatus.UNAUTHORIZED,
+            "unauthorized"
+    ),
+    USER_NOT_FOUND(
+            HttpStatus.NOT_FOUND,
+            "user_not_found"
+    ),
+    INVALID_CURSOR(
+            HttpStatus.BAD_REQUEST,
+            "invalid_cursor"
+    ),
+    POST_NOT_FOUND(
+            HttpStatus.NOT_FOUND,
+            "post_not_found"
+    ),
+    NOT_POST_OWNER(
+            HttpStatus.FORBIDDEN,
+            "not_post_owner"
     );
 
     // 필드
