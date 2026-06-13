@@ -32,4 +32,10 @@ public class Like {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
+
+    // 좋아요 추가를 위한 생성자
+    public Like(User user, Post post) {
+        this.user = user;
+        this.post = post;
+    }
 }
