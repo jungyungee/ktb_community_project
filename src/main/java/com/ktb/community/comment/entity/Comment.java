@@ -11,8 +11,8 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor
 @Entity
-@Table(name = "likes")
-public class Like {
+@Table(name = "comments")
+public class Comment {
     //PK
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,4 +35,16 @@ public class Like {
 
     @Column(name ="updated_at")
     private LocalDateTime updatedAt;
+
+    @PrePersist
+    public void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
+
+    // 댓글 추가용 생성자 정의
+    public Comment(User user, Post post, String content){
+        this.user = user;
+        this.post = post;
+        this.content = content;
+    }
 }

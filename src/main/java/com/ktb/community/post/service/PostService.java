@@ -12,7 +12,6 @@ import com.ktb.community.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.DeleteMapping;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
