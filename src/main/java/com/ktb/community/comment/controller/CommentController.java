@@ -39,4 +39,16 @@ public class CommentController {
         CommentListResponse response = commentService.getCommentList(cursor, postId, userId);
         return new ApiResponse<>("comment_list_fetched", response);
     }
+
+    // 댓글 수정
+    @PatchMapping("/comments/{commentId}")
+    public ApiResponse<CommentResponse> updateComment(
+            @Valid @RequestBody CommentRequest request,
+            @PathVariable Long commentId,
+            HttpServletRequest servletRequest
+    ){
+        Long userId = (Long) servletRequest.getAttribute("userId");
+        CommentResponse response = commentService.updateComment(userId, commentId, request);
+        return new ApiResponse<>("comment_updated", response);
+    }
 }

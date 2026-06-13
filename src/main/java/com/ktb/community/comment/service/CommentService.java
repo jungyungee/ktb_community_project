@@ -10,6 +10,7 @@ import com.ktb.community.post.entity.Post;
 import com.ktb.community.user.entity.User;
 import com.ktb.community.post.repository.PostRepository;
 import com.ktb.community.user.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -162,5 +163,32 @@ public class CommentService {
         } catch (Exception e) {
             throw new BusinessException(ErrorCode.INVALID_CURSOR);
         }
+    }
+
+    // 댓글 수정
+    @Transactional
+    public CommentResponse updateComment(Long userId, Long commentId, CommentRequest request){
+        if (userId == null) {
+            throw new BusinessException(ErrorCode.UNAUTHORIZED);
+        }
+
+        // comment Id를 통해 가져온 comment
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(()-> new BusinessException(ErrorCode.COMMENT_NOT_FOUND));
+
+        // 댓글의 작성자와 현재 로그인된 사용자가 일치하지 않을 시, 수정 불가
+        if (!comment.getUser().getId().equals(userId)){
+            throw new BusinessException(ErrorCode.NOT_COMMENT_OWNER);
+        }
+
+        comment.update(
+                request.getContent()
+        );
+
+        return new CommentResponse(
+                comment.getId(),
+                comment.getContent(),
+                comment.getCreatedAt()
+        );
     }
 }

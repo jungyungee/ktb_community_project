@@ -41,10 +41,23 @@ public class Comment {
         this.createdAt = LocalDateTime.now();
     }
 
+    @PreUpdate
+    public void onUpdate(){
+        this.updatedAt = LocalDateTime.now();
+    }
+
+
     // 댓글 추가용 생성자 정의
     public Comment(User user, Post post, String content){
         this.user = user;
         this.post = post;
         this.content = content;
+    }
+
+    // 댓글 수정
+    public void update(String content){
+        if(content != null){
+            this.content = content;
+        }
     }
 }
