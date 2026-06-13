@@ -78,4 +78,13 @@ public class Post {
     public void onUpdate(){
         this.updatedAt = LocalDateTime.now();
     }
+
+    // 게시글 좋아요 수 카운팅
+    public void increaseLikeCount(){
+        this.likeCount++;
+    }
+
+    public void decreaseLikeCount(){
+        this.likeCount--;
+    }
 }
