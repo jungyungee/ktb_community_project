@@ -195,6 +195,7 @@ public class CommentService {
     }
 
     // 댓글 삭제
+    @Transactional
     public void deleteComment(Long userId, Long commentId){
         if (userId == null) {
             throw new BusinessException(ErrorCode.UNAUTHORIZED);
