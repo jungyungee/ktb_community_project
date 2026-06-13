@@ -45,8 +45,9 @@ public class CommentService {
         Comment comment = new Comment(
             user, post, request.getContent()
         );
-
         Comment savedComment = commentRepository.save(comment);
+        // 게시글 내 댓글 카운트 추가
+        post.increaseCommentCount();
 
         return new CommentResponse(
                 savedComment.getId(),

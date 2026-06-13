@@ -87,4 +87,9 @@ public class Post {
     public void decreaseLikeCount(){
         this.likeCount--;
     }
+
+    // 게시글 댓글 수 카운팅
+    public void increaseCommentCount() { this.commentCount++; }
+
+    public void decreaseCommentCount() { this.commentCount--; }
 }
