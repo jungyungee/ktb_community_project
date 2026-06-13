@@ -205,6 +205,8 @@ public class CommentService {
         if(!comment.getUser().getId().equals(userId)){
             throw new BusinessException(ErrorCode.NOT_COMMENT_OWNER);
         }
+        Post post = comment.getPost();
+        post.decreaseCommentCount();
         commentRepository.delete(comment);
     }
 }
