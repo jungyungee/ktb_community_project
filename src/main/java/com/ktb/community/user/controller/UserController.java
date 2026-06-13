@@ -4,6 +4,7 @@ import com.ktb.community.global.response.ApiResponse;
 import com.ktb.community.user.service.UserService;
 import com.ktb.community.user.dto.SignupRequest;
 import com.ktb.community.user.dto.SignupResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,6 +25,7 @@ public class UserController {
     // 응답으로 돌아온 SignupResponse 로 응답 보냄
     @PostMapping
     public ApiResponse<SignupResponse> signup(
+            @Valid
             @RequestBody SignupRequest request
     ){
         SignupResponse response = userService.signup(request);
