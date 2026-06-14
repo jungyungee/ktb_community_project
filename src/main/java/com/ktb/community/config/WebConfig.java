@@ -28,4 +28,4 @@ public class WebConfig implements WebMvcConfigurer {
     }
 }
 
-// 추후에 리프레쉬 토큰을 구현하고 HttpOnly Cookie 방식으로 수정 예정
+// 추후에 리프레쉬 토큰을 구현하고 HttpOnly Cookie 방식으로 수정 예정 (.allowCredentials(true))
