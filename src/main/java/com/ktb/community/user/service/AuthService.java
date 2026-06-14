@@ -4,6 +4,7 @@ import com.ktb.community.global.exception.BusinessException;
 import com.ktb.community.global.exception.ErrorCode;
 import com.ktb.community.global.security.JwtProvider;
 import com.ktb.community.global.security.PasswordHash;
+import com.ktb.community.user.dto.LoginResult;
 import com.ktb.community.user.entity.RefreshToken;
 import com.ktb.community.user.entity.UserStatus;
 import com.ktb.community.user.repository.RefreshTokenRepository;
@@ -29,7 +30,7 @@ public class AuthService {
     // email이 존재한다면 비밀번호 검증 로직을 거친 후
     // jwt 발급 시킴
     // 이후 응답객체 dto를 통해 반환
-    public LoginResponse login(LoginRequest request){
+    public LoginResult login(LoginRequest request){
         // 유저를 찾는다.
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(
@@ -65,6 +66,6 @@ public class AuthService {
                 )
         );
 
-        return new LoginResponse(accessToken);
+        return new LoginResult(accessToken, refreshToken);
     }
 }
