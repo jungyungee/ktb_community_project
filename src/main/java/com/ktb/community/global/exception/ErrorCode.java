@@ -50,7 +50,16 @@ public enum ErrorCode {
     NOT_POST_OWNER(
             HttpStatus.FORBIDDEN,
             "not_post_owner"
-    );
+    ),
+    COMMENT_NOT_FOUND(
+            HttpStatus.NOT_FOUND,
+            "comment_not_found"
+    ),
+    NOT_COMMENT_OWNER(
+            HttpStatus.FORBIDDEN,
+            "not_comment_owner"
+    )
+    ;
 
     // 필드
     private final HttpStatus status;
