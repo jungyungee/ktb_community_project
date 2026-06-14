@@ -3,6 +3,7 @@ package com.ktb.community.user.service;
 import com.ktb.community.global.exception.BusinessException;
 import com.ktb.community.global.exception.ErrorCode;
 import com.ktb.community.global.security.PasswordHash;
+import com.ktb.community.user.dto.UserResponse;
 import com.ktb.community.user.entity.User;
 import com.ktb.community.user.repository.UserRepository;
 import com.ktb.community.user.dto.SignupRequest;
@@ -41,5 +42,24 @@ public class UserService {
         User savedUser = userRepository.save(user);
         // 응답 반환
         return new SignupResponse(savedUser.getId());
+    }
+
+    // 유저 정보 조회 (내 정보)
+    public UserResponse getUser(Long userId){
+        if (userId == null) {
+            throw new BusinessException(ErrorCode.UNAUTHORIZED);
+        }
+        // 유저 정보 확인
+        User user = userRepository.findById(userId)
+                .orElseThrow(()->
+                        new BusinessException(ErrorCode.USER_NOT_FOUND)
+                );
+
+        return new UserResponse(
+                user.getId(),
+                user.getEmail(),
+                user.getNickname(),
+                user.getProfileImageUrl()
+        );
     }
 }
