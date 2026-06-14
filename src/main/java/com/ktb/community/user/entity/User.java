@@ -66,4 +66,9 @@ public class User {
     public void updatePassword(String password){
         this.password = password;
     }
+    // 회원 탈퇴
+    public void deleteUser(){
+        this.status = UserStatus.DELETED;
+        this.deletedAt = LocalDateTime.now();
+    }
 }

@@ -5,6 +5,7 @@ import com.ktb.community.global.exception.ErrorCode;
 import com.ktb.community.global.security.PasswordHash;
 import com.ktb.community.user.dto.*;
 import com.ktb.community.user.entity.User;
+import com.ktb.community.user.entity.UserStatus;
 import com.ktb.community.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -120,5 +121,22 @@ public class UserService {
 
         String encodedPassword = passwordHash.hash(request.getNewPassword());
         user.updatePassword(encodedPassword);
+    }
+
+    // 유저 탈퇴 로직 (soft delete)
+    @Transactional
+    public void deleteUser(Long userId){
+        if (userId == null) {
+            throw new BusinessException(ErrorCode.UNAUTHORIZED);
+        }
+        // 유저 정보 가져오기
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+        // 이미 탈퇴한 유저일 경우 에러
+        if (user.getStatus() == UserStatus.DELETED){
+            throw new BusinessException(ErrorCode.USER_ALREADY_DELETED);
+        }
+        // 유저 상태 변경
+        user.deleteUser();
     }
 }

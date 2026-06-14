@@ -60,4 +60,13 @@ public class UserController {
         userService.updatePassword(userId, request);
         return new ApiResponse<>("password_updated", null);
     }
+
+    // 유저 탈퇴
+    @DeleteMapping("/me")
+    public void deleteUser(
+            HttpServletRequest servletRequest
+    ){
+        Long userId = (Long) servletRequest.getAttribute("userId");
+        userService.deleteUser(userId);
+    }
 }
