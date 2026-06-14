@@ -96,4 +96,13 @@ public class AuthService {
         return new LoginResponse(accessToken);
     }
 
+    // 로그아웃 처리
+    // HttpOnly Cookie에 저장된 refreshToken을 무효화
+    // 쿠키를 제거
+    @Transactional
+    public void logout(Long userId){
+        // 토큰이 없어도 에러 나지 않고 로그아웃 성공으로
+        // 토큰이 있으면 삭제
+        refreshTokenRepository.deleteByUserId(userId);
+    }
 }

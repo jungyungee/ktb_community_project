@@ -56,12 +56,12 @@ public class AuthController {
     // 브라우저 요청에 담겨온 리프레쉬 토큰을 가지고 액세스 토큰 재발급
     @PostMapping("/refresh")
     public ApiResponse<LoginResponse> refresh(
-            HttpServletRequest request
+            HttpServletRequest servletRequest
     ){
         String refreshToken = null;
 
         // 요청에 담겨온 현재 쿠키 가져오기
-        Cookie[] cookies = request.getCookies();
+        Cookie[] cookies = servletRequest.getCookies();
 
         if (cookies != null) {
             // 쿠키 내를 반복문으로 돌면서 이름이 refreshToken인 쿠키 찾기
@@ -84,5 +84,33 @@ public class AuthController {
         // 리프레쉬 토큰이 쿠키에 있으면 액세스 토큰 재발급해서 응답으로 돌려줌
         LoginResponse response = authService.refresh(refreshToken);
         return new ApiResponse<>("token_refreshed", response);
+    }
+
+    // 로그아웃
+    // 디비 리프레쉬 토큰 삭제
+    // 쿠키 삭제 (만료)
+    @PostMapping("/auth/delete")
+    public ApiResponse<Void> logout(
+            HttpServletRequest servletRequest,
+            HttpServletResponse servletResponse
+    ){
+        Long userId = (Long) servletRequest.getAttribute("userId");
+        // 로그아웃 (디비에서 리프레쉬 토큰 삭제)
+        authService.logout(userId);
+
+        // 리프레쉬 토큰 쿠키 삭제 (브라우저 상에서)
+        // null 쿠키 만들어서 즉시 만료
+        Cookie refreshCookie = new Cookie(
+                "refreshToken",
+                null
+        );
+        refreshCookie.setHttpOnly(true);
+        refreshCookie.setPath("/");
+        refreshCookie.setMaxAge(0); // 쿠키 즉시 만료시킴
+
+        // 만료를 보내면 브라우저는 쿠키 삭제
+        servletResponse.addCookie(refreshCookie);
+
+        return new ApiResponse<>("logout_success", null);
     }
 }
