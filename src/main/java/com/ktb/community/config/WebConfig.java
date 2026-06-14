@@ -23,9 +23,12 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedMethods("GET", "POST", "PATCH", "DELETE", "OPTIONS")
 
                 // 요청 헤더 허용 (현재는 모든 헤더 허용)
-                // Authorization 헤더(JWT) 사용을 위해 필요
-                .allowedHeaders("*");
+                // Authorization 헤더 accessToken (JWT) 사용을 위해 필요
+                .allowedHeaders("*")
+
+                // 쿠키 포함 요청 허용
+                // refreshToken을 HttpOnly Cookie로 사용하므로 필요
+                // 프론트 fetch 요청에서도 credentials: "include" 설정 필요
+                .allowCredentials(true);
     }
 }
-
-// 추후에 리프레쉬 토큰을 구현하고 HttpOnly Cookie 방식으로 수정 예정 (.allowCredentials(true))
