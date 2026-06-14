@@ -1,10 +1,8 @@
 package com.ktb.community.user.controller;
 
 import com.ktb.community.global.response.ApiResponse;
-import com.ktb.community.user.dto.UserResponse;
+import com.ktb.community.user.dto.*;
 import com.ktb.community.user.service.UserService;
-import com.ktb.community.user.dto.SignupRequest;
-import com.ktb.community.user.dto.SignupResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -39,5 +37,16 @@ public class UserController {
         Long userId = (Long) servletRequest.getAttribute("userId");
         UserResponse response = userService.getUser(userId);
         return new ApiResponse<>("user_fetched", response);
+    }
+
+    // 내 정보 수정
+    @PatchMapping("/me")
+    public ApiResponse<UserUpdateResponse> updateUser(
+            HttpServletRequest servletRequest,
+            @RequestBody UserUpdateRequest request
+    ){
+        Long userId = (Long) servletRequest.getAttribute("userId");
+        UserUpdateResponse response = userService.updateUser(userId, request);
+        return new ApiResponse<>("user_updated", response);
     }
 }

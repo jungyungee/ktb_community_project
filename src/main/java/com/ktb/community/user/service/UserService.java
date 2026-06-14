@@ -3,11 +3,10 @@ package com.ktb.community.user.service;
 import com.ktb.community.global.exception.BusinessException;
 import com.ktb.community.global.exception.ErrorCode;
 import com.ktb.community.global.security.PasswordHash;
-import com.ktb.community.user.dto.UserResponse;
+import com.ktb.community.user.dto.*;
 import com.ktb.community.user.entity.User;
 import com.ktb.community.user.repository.UserRepository;
-import com.ktb.community.user.dto.SignupRequest;
-import com.ktb.community.user.dto.SignupResponse;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -64,4 +63,47 @@ public class UserService {
     }
 
     // 유저 정보 수정
+    @Transactional
+    public UserUpdateResponse updateUser(Long userId, UserUpdateRequest request){
+        if (userId == null) {
+            throw new BusinessException(ErrorCode.UNAUTHORIZED);
+        }
+        // 유저 정보 가져오기
+        User user = userRepository.findById(userId)
+                .orElseThrow(()->
+                        new BusinessException(ErrorCode.USER_NOT_FOUND)
+                );
+
+        // 닉네임 변경
+        if (request.getNickname() != null){
+            // 빈칸 입력 시 예외 처리
+            if (request.getNickname().isBlank()){
+                throw new BusinessException(ErrorCode.INVALID_REQUEST);
+            }
+
+            // 유저 닉네임 이미 존재할 때 오류
+            if (!user.getNickname().equals(request.getNickname())
+                    && userRepository.existsByNickname(request.getNickname())
+            ){
+                throw new BusinessException(ErrorCode.NICKNAME_ALREADY_EXISTS);
+            }
+
+            user.updateNickname(request.getNickname());
+        }
+
+        // 프로필 이미지 변경
+        if (request.getProfileImage() != null){
+            // 빈칸 입력 시 예외 처리
+            if (request.getProfileImage().isBlank()){
+                throw new BusinessException(ErrorCode.INVALID_REQUEST);
+            }
+            user.updateProfileImageUrl(request.getProfileImage());
+        }
+
+        return new UserUpdateResponse(
+                user.getId(),
+                user.getNickname(),
+                user.getProfileImageUrl()
+        );
+    }
 }

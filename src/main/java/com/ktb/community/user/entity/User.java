@@ -54,4 +54,13 @@ public class User {
         this.profileImageUrl = profileImageUrl;
         this.status = UserStatus.ACTIVE;
     }
+
+    // 회원 정보 수정
+    public void updateNickname(String nickname){
+        this.nickname = nickname;
+    }
+
+    public void updateProfileImageUrl(String profileImageUrl){
+        this.profileImageUrl = profileImageUrl;
+    }
 }
