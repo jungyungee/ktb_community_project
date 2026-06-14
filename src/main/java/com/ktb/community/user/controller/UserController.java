@@ -1,15 +1,14 @@
 package com.ktb.community.user.controller;
 
 import com.ktb.community.global.response.ApiResponse;
+import com.ktb.community.user.dto.UserResponse;
 import com.ktb.community.user.service.UserService;
 import com.ktb.community.user.dto.SignupRequest;
 import com.ktb.community.user.dto.SignupResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController //HTTP 요청을 처리하는 컨트롤러
 @RequestMapping("/users")
@@ -30,5 +29,15 @@ public class UserController {
     ){
         SignupResponse response = userService.signup(request);
         return new ApiResponse<>("user_created", response);
+    }
+
+    // 내 정보 조회
+    @GetMapping("/me")
+    public ApiResponse<UserResponse> getUser(
+            HttpServletRequest servletRequest
+    ){
+        Long userId = (Long) servletRequest.getAttribute("userId");
+        UserResponse response = userService.getUser(userId);
+        return new ApiResponse<>("user_fetched", response);
     }
 }
