@@ -49,4 +49,15 @@ public class UserController {
         UserUpdateResponse response = userService.updateUser(userId, request);
         return new ApiResponse<>("user_updated", response);
     }
+
+    // 유저 - 내 비밀번호 수정
+    @PatchMapping("/me/password")
+    public ApiResponse<Void> updatePassword(
+            HttpServletRequest servletRequest,
+            @Valid @RequestBody PasswordUpdateRequest request
+    ){
+        Long userId = (Long) servletRequest.getAttribute("userId");
+        userService.updatePassword(userId, request);
+        return new ApiResponse<>("password_updated", null);
+    }
 }

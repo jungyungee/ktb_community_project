@@ -106,4 +106,19 @@ public class UserService {
                 user.getProfileImageUrl()
         );
     }
+
+    // 유저 비밀번호 수정
+    @Transactional
+    public void updatePassword(Long userId, PasswordUpdateRequest request){
+        if (userId == null) {
+            throw new BusinessException(ErrorCode.UNAUTHORIZED);
+        }
+
+        // 유저 정보 가져오기
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        String encodedPassword = passwordHash.hash(request.getNewPassword());
+        user.updatePassword(encodedPassword);
+    }
 }
