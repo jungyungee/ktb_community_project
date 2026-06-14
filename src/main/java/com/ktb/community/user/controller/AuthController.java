@@ -3,7 +3,10 @@ package com.ktb.community.user.controller;
 import com.ktb.community.global.response.ApiResponse;
 import com.ktb.community.user.dto.LoginRequest;
 import com.ktb.community.user.dto.LoginResponse;
+import com.ktb.community.user.dto.LoginResult;
 import com.ktb.community.user.service.AuthService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,9 +27,26 @@ public class AuthController {
     // 응답으로 돌아온 LoginResponse 로 응답 보냄
     @PostMapping
     public ApiResponse<LoginResponse> login(
-            @RequestBody LoginRequest request
+            @RequestBody LoginRequest request,
+            HttpServletResponse servletResponse
     ){
-        LoginResponse response = authService.login(request);
-        return new ApiResponse<>("login_success",response);
+        // 로그인 결과 - 액세스, 리프레쉬 토큰 포함
+        LoginResult result = authService.login(request);
+
+        // 쿠키 생성 (브라우저에게 보낼)
+        Cookie refreshCookie = new Cookie(
+            "refreshToken",
+                result.getRefreshToken()
+        );
+
+        refreshCookie.setHttpOnly(true); //document.cookie 로 읽을 수 없도록 보안을 위해 추가
+        refreshCookie.setPath("/"); // API 모든 경로에서 쿠키 전송 가능하도록
+        refreshCookie.setMaxAge(60 * 60 * 24 * 14); // 쿠키 만료 시간
+        // refreshCookie.setSecure(true); //HTTPS 배포 시 추가
+
+        // 생성한 쿠키를 HTTP 응답 헤더에 추가
+        servletResponse.addCookie(refreshCookie);
+
+        return new ApiResponse<>("login_success", new LoginResponse(result.getAccessToken()));
     }
 }
