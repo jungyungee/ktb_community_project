@@ -89,7 +89,7 @@ public class AuthController {
     // 로그아웃
     // 디비 리프레쉬 토큰 삭제
     // 쿠키 삭제 (만료)
-    @PostMapping("/auth/delete")
+    @PostMapping("/logout")
     public ApiResponse<Void> logout(
             HttpServletRequest servletRequest,
             HttpServletResponse servletResponse
