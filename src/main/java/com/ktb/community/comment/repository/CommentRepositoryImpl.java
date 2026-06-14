@@ -39,6 +39,7 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom{
         // comment에서 위에 정의한 condition에 맞게 가져오고, 정렬해서 내보내기
         return queryFactory
                 .selectFrom(comment)
+                .join(comment.user).fetchJoin()
                 .where(condition)
                 .orderBy(
                         comment.createdAt.desc(),

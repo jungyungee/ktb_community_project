@@ -14,7 +14,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.awt.*;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Base64;
@@ -64,13 +63,14 @@ public class CommentService {
         if (userId == null) {
             throw new BusinessException(ErrorCode.UNAUTHORIZED);
         }
-        // 유저 정보 확인
-        User user = userRepository.findById(userId)
-                .orElseThrow(()-> new BusinessException(ErrorCode.USER_NOT_FOUND));
-
-        // 게시글 정보 확인
-        Post post = postRepository.findById(postId)
-                .orElseThrow(()-> new BusinessException(ErrorCode.POST_NOT_FOUND));
+        // 유저 존재 여부 확인
+        if (!userRepository.existsById(userId)) {
+            throw new BusinessException(ErrorCode.USER_NOT_FOUND);
+        }
+        // 게시글 존재 여부 확인
+        if (!postRepository.existsById(postId)) {
+            throw new BusinessException(ErrorCode.POST_NOT_FOUND);
+        }
 
         // 페이징 구현
         int size = 10; //길이 10
