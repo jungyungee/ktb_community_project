@@ -1,15 +1,12 @@
 package com.ktb.community.user.controller;
 
 import com.ktb.community.global.response.ApiResponse;
+import com.ktb.community.user.dto.*;
 import com.ktb.community.user.service.UserService;
-import com.ktb.community.user.dto.SignupRequest;
-import com.ktb.community.user.dto.SignupResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController //HTTP 요청을 처리하는 컨트롤러
 @RequestMapping("/users")
@@ -30,5 +27,46 @@ public class UserController {
     ){
         SignupResponse response = userService.signup(request);
         return new ApiResponse<>("user_created", response);
+    }
+
+    // 내 정보 조회
+    @GetMapping("/me")
+    public ApiResponse<UserResponse> getUser(
+            HttpServletRequest servletRequest
+    ){
+        Long userId = (Long) servletRequest.getAttribute("userId");
+        UserResponse response = userService.getUser(userId);
+        return new ApiResponse<>("user_fetched", response);
+    }
+
+    // 내 정보 수정
+    @PatchMapping("/me")
+    public ApiResponse<UserUpdateResponse> updateUser(
+            HttpServletRequest servletRequest,
+            @RequestBody UserUpdateRequest request
+    ){
+        Long userId = (Long) servletRequest.getAttribute("userId");
+        UserUpdateResponse response = userService.updateUser(userId, request);
+        return new ApiResponse<>("user_updated", response);
+    }
+
+    // 유저 - 내 비밀번호 수정
+    @PatchMapping("/me/password")
+    public ApiResponse<Void> updatePassword(
+            HttpServletRequest servletRequest,
+            @Valid @RequestBody PasswordUpdateRequest request
+    ){
+        Long userId = (Long) servletRequest.getAttribute("userId");
+        userService.updatePassword(userId, request);
+        return new ApiResponse<>("password_updated", null);
+    }
+
+    // 유저 탈퇴
+    @DeleteMapping("/me")
+    public void deleteUser(
+            HttpServletRequest servletRequest
+    ){
+        Long userId = (Long) servletRequest.getAttribute("userId");
+        userService.deleteUser(userId);
     }
 }

@@ -1,8 +1,8 @@
 package com.ktb.community.global.exception;
 
 import com.ktb.community.global.response.ApiResponse;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -26,5 +26,14 @@ public class GlobalExceptionHandler {
                                 null
                         )
                 );
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiResponse<Void>> handleValidationException(
+            MethodArgumentNotValidException e
+    ){
+        return ResponseEntity
+                .badRequest()
+                .body(new ApiResponse<>("invalid_request", null));
     }
 }

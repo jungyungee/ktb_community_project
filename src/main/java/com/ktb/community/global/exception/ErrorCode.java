@@ -58,8 +58,11 @@ public enum ErrorCode {
     NOT_COMMENT_OWNER(
             HttpStatus.FORBIDDEN,
             "not_comment_owner"
-    )
-    ;
+    ),
+    USER_ALREADY_DELETED(
+            HttpStatus.CONFLICT,
+            "user_already_deleted"
+    );
 
     // 필드
     private final HttpStatus status;

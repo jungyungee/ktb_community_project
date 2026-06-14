@@ -54,4 +54,21 @@ public class User {
         this.profileImageUrl = profileImageUrl;
         this.status = UserStatus.ACTIVE;
     }
+
+    // 회원 정보 수정
+    public void updateNickname(String nickname){
+        this.nickname = nickname;
+    }
+
+    public void updateProfileImageUrl(String profileImageUrl){
+        this.profileImageUrl = profileImageUrl;
+    }
+    public void updatePassword(String password){
+        this.password = password;
+    }
+    // 회원 탈퇴
+    public void deleteUser(){
+        this.status = UserStatus.DELETED;
+        this.deletedAt = LocalDateTime.now();
+    }
 }
