@@ -22,7 +22,10 @@ public enum ErrorCode {
             HttpStatus.BAD_REQUEST,
             "invalid_request"
     ),
-
+    INVALID_REFRESH_TOKEN(
+            HttpStatus.UNAUTHORIZED,
+            "invalid_refresh_token"
+    ),
     INTERNAL_SERVER_ERROR(
             HttpStatus.INTERNAL_SERVER_ERROR,
             "internal_server_error"

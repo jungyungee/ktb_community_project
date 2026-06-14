@@ -1,11 +1,14 @@
 package com.ktb.community.user.controller;
 
+import com.ktb.community.global.exception.BusinessException;
+import com.ktb.community.global.exception.ErrorCode;
 import com.ktb.community.global.response.ApiResponse;
 import com.ktb.community.user.dto.LoginRequest;
 import com.ktb.community.user.dto.LoginResponse;
 import com.ktb.community.user.dto.LoginResult;
 import com.ktb.community.user.service.AuthService;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -48,5 +51,38 @@ public class AuthController {
         servletResponse.addCookie(refreshCookie);
 
         return new ApiResponse<>("login_success", new LoginResponse(result.getAccessToken()));
+    }
+
+    // 브라우저 요청에 담겨온 리프레쉬 토큰을 가지고 액세스 토큰 재발급
+    @PostMapping("/refresh")
+    public ApiResponse<LoginResponse> refresh(
+            HttpServletRequest request
+    ){
+        String refreshToken = null;
+
+        // 요청에 담겨온 현재 쿠키 가져오기
+        Cookie[] cookies = request.getCookies();
+
+        if (cookies != null) {
+            // 쿠키 내를 반복문으로 돌면서 이름이 refreshToken인 쿠키 찾기
+            for (Cookie cookie: cookies){
+                if ("refreshToken".equals(cookie.getName())){
+                    // refreshToken인 쿠키에서 값을 가져오기
+                    refreshToken = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        // 리프레쉬 토큰이 쿠키에 없는 경우
+        if (refreshToken == null){
+            throw new BusinessException(
+                    ErrorCode.INVALID_REFRESH_TOKEN
+            );
+        }
+
+        // 리프레쉬 토큰이 쿠키에 있으면 액세스 토큰 재발급해서 응답으로 돌려줌
+        LoginResponse response = authService.refresh(refreshToken);
+        return new ApiResponse<>("token_refreshed", response);
     }
 }

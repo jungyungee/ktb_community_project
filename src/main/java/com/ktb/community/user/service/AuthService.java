@@ -68,4 +68,30 @@ public class AuthService {
 
         return new LoginResult(accessToken, refreshToken);
     }
+
+    // 리프레쉬 토큰으로 액세스 토큰 재발급 (로그인 유지용)
+    public LoginResponse refresh(String refreshToken){
+
+        // 디비에 리프레쉬 토큰 있는지 확인
+        RefreshToken savedToken = refreshTokenRepository.findByToken(refreshToken)
+                .orElseThrow(()->new BusinessException(
+                        ErrorCode.INVALID_REFRESH_TOKEN
+                ));
+
+        // 들어온 토큰 검증
+        if (!jwtProvider.validateToken(refreshToken)){
+            throw new BusinessException(
+                    ErrorCode.INVALID_REFRESH_TOKEN
+            );
+        }
+
+        // 디비에 해당하는 리프레쉬 토큰 존재하고, 검증되면
+        String accessToken = jwtProvider.createAccessToken(
+                savedToken.getUserId()
+        );
+
+        // 액세스 토큰을 응답으로 돌려줌
+        return new LoginResponse(accessToken);
+    }
+
 }
