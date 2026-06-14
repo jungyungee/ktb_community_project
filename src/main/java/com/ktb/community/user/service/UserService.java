@@ -92,12 +92,12 @@ public class UserService {
         }
 
         // 프로필 이미지 변경
-        if (request.getProfileImage() != null){
+        if (request.getProfileImageUrl() != null){
             // 빈칸 입력 시 예외 처리
-            if (request.getProfileImage().isBlank()){
+            if (request.getProfileImageUrl().isBlank()){
                 throw new BusinessException(ErrorCode.INVALID_REQUEST);
             }
-            user.updateProfileImageUrl(request.getProfileImage());
+            user.updateProfileImageUrl(request.getProfileImageUrl());
         }
 
         return new UserUpdateResponse(
