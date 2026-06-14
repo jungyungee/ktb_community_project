@@ -12,6 +12,7 @@ import com.ktb.community.user.repository.UserRepository;
 import com.ktb.community.user.dto.LoginRequest;
 import com.ktb.community.user.dto.LoginResponse;
 import com.ktb.community.user.entity.User;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +31,7 @@ public class AuthService {
     // email이 존재한다면 비밀번호 검증 로직을 거친 후
     // jwt 발급 시킴
     // 이후 응답객체 dto를 통해 반환
+    @Transactional // 토큰 삭제 쿼리 - 하나의 트랜잭션 안에서 수행되어야 함
     public LoginResult login(LoginRequest request){
         // 유저를 찾는다.
         User user = userRepository.findByEmail(request.getEmail())
