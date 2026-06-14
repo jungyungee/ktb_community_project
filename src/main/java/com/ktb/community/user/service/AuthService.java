@@ -4,6 +4,7 @@ import com.ktb.community.global.exception.BusinessException;
 import com.ktb.community.global.exception.ErrorCode;
 import com.ktb.community.global.security.JwtProvider;
 import com.ktb.community.global.security.PasswordHash;
+import com.ktb.community.user.entity.UserStatus;
 import com.ktb.community.user.repository.UserRepository;
 import com.ktb.community.user.dto.LoginRequest;
 import com.ktb.community.user.dto.LoginResponse;
@@ -31,6 +32,12 @@ public class AuthService {
                         // 에러 처리를 한다.
                         () -> new BusinessException(ErrorCode.INVALID_EMAIL_OR_PASSWORD)
                 );
+
+        // 탈퇴한 유저는 로그인 불가하도록 에러 처리
+        if (user.getStatus() == UserStatus.DELETED) {
+            throw new BusinessException(ErrorCode.USER_ALREADY_DELETED);
+        }
+
         if (!passwordHash.matches(request.getPassword(),user.getPassword())){
             // 비밀번호가 일치하지 않을 경우
             // 에러 처리를 한다.
