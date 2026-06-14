@@ -62,4 +62,6 @@ public class UserService {
                 user.getProfileImageUrl()
         );
     }
+
+    // 유저 정보 수정
 }
