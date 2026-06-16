@@ -16,7 +16,10 @@ public class WebConfig implements WebMvcConfigurer {
                 // 허용할 출처(Origin)
                 // 현재는 로컬 개발 환경의 프론트 서버만 허용
                 // 배포 시에는 실제 프론트 도메인으로 변경 예정
-                .allowedOrigins("http://localhost:3000")
+                .allowedOrigins(
+                        "http://localhost:3000",
+                        "https://yungee-community.cloud"
+                )
 
                 // 허용할 HTTP 메서드
                 // OPTIONS 는 브라우저의 Preflight 요청 처리용
