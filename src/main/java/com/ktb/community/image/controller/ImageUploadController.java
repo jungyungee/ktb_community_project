@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("imageurls")
+@RequestMapping("/imageurls")
 public class ImageUploadController {
     private final ImageUploadService imageUploadService;
 
