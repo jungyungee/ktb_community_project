@@ -65,6 +65,14 @@ public enum ErrorCode {
     USER_ALREADY_DELETED(
             HttpStatus.CONFLICT,
             "user_already_deleted"
+    ),
+    UNSUPPORTED_MEDIA_TYPE(
+            HttpStatus.UNSUPPORTED_MEDIA_TYPE,
+            "unsupported_media_type"
+    ),
+    STORAGE_SERVICE_UNAVAILABLE(
+            HttpStatus.SERVICE_UNAVAILABLE,
+            "storage_service_unavailable"
     );
 
     // 필드
