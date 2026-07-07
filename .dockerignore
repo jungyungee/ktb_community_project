@@ -1,0 +1,17 @@
+# dockerfile에서 제외할 파일들 및 경로
+# git 관련
+.git
+.gitignore
+# docker 관련
+.dockerignore
+# Gradle 캐시
+.gradle
+# IDE
+.idea
+*.iml
+# BUILD 결과물
+build
+# 로컬 설정 파일
+.env
+# mac 에서 생성된 것
+.DS_Store
