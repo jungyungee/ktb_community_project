@@ -1,0 +1,31 @@
+# ci-cd.yml
+name: Backend CI/CD
+
+on:
+  release:
+    types:
+      - published
+  pull_request:
+    branches:
+      - dev
+      - main
+  workflow_dispatch:
+
+jobs:
+  ci-test:
+    runs-on: ubuntu-latest
+    steps:
+      -
+
+  ci-build:
+    runs-on: ubuntu-latest
+    steps:
+      -
+
+  cd:
+    needs:
+      - ci-test
+      - ci-build
+    runs-on: ubuntu-latest
+    steps:
+      -
