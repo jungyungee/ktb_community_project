@@ -33,7 +33,7 @@ jobs:
 
       # 만들어진 이미지로 도커 run (도커 컴포즈 사용)
       - name: docker run
-        run: docker compose up
+        run: IMAGE_TAG=${{ github.sha }} docker compose -f compose.ci.yml up -d
 
       # 헬스체크
 
