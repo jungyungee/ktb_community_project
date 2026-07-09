@@ -31,9 +31,9 @@ jobs:
       - name: image build
         run: docker build -t ktb-community-backend:${{ github.sha }} .
 
-      # 만들어진 이미지로 도커 run
+      # 만들어진 이미지로 도커 run (도커 컴포즈 사용)
       - name: docker run
-        run: docker run
+        run: docker compose up
 
       # 헬스체크
 
