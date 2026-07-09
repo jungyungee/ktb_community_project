@@ -2,30 +2,56 @@
 name: Backend CI/CD
 
 on:
-  release:
-    types:
-      - published
+  # PR 에서 CI
   pull_request:
     branches:
       - dev
       - main
+  # dev -> main merge 시 CD
+  push:
+    branches:
+      - main
+  # 수동 작업
   workflow_dispatch:
 
 jobs:
-  ci-test:
+  # 테스트 코드는 추후에 추가 예정
+  # 빌드 및 헬스 체크
+  ci:
     runs-on: ubuntu-latest
     steps:
-      -
+      # 깃허브 러너에 저장소를 클론
+      - name: checkout repository
+        uses: actions/checkout@v7
+      # - 테스트 코드 작성 후 gradle Test 추가 필요
+      # - jdk set up
+      # - gradle test
 
-  ci-build:
-    runs-on: ubuntu-latest
-    steps:
-      -
+      # 이미지 빌드 - 도커파일 사용
+      - name: image build
+        run: docker build -t ktb-community-backend:${{ github.sha }} .
 
+      # 만들어진 이미지로 도커 run
+      - name: docker run
+        run: docker run
+
+      # 헬스체크
+
+      # 도커 저장
+
+      # 아티팩트 저장소에 저장
+
+  # ci 에서 만드러진 artifact 이용해서
+  # 도커 허브 push, 배포 서버에서 해당 이미지로 헬스체크
+  # 성공 여부에 따라 롤백 혹은 유지
   cd:
     needs:
-      - ci-test
-      - ci-build
+      - ci
+    # PR 때 실행되지 않도록 조건 추가
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
-      -
+      # 아티팩트 다운로드
+      - name: artifact download
+
+      # 도커
