@@ -1,4 +1,4 @@
-name: ktb-commnuity
+name: ktb-community
 # 서비스는 논리적인 역할 이름
 services:
   backend:

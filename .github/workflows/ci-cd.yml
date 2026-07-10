@@ -36,6 +36,21 @@ jobs:
         run: IMAGE_TAG=${{ github.sha }} docker compose -f compose.ci.yml up -d
 
       # 헬스체크
+      - name: health check
+        run: |
+          for i in {1..10}; do
+            if curl -f http://localhost:8080/server-api/health; then
+              echo "Health Check Success"
+              exit 0
+            fi
+          
+            echo "Waiting ($i/10)"
+            sleep 5
+          done
+          
+          echo "Health Check Failed"
+          docker compose -f compose.ci.yml logs backend
+          exit 1
 
       # 도커 저장
 
