@@ -14,11 +14,6 @@ on:
   # 수동 작업
   workflow_dispatch:
 
-# 동시에 배포되어서 ALB 전환이 꼬이지 않도록 방지
-concurrency:
-  group: backend-production-deploy
-  cancel-in-progress: false
-
 jobs:
   # 테스트 코드는 추후에 추가 예정
   # 빌드 및 헬스 체크
@@ -78,6 +73,10 @@ jobs:
   cd:
     needs:
       - ci
+    # 동시에 배포되어서 ALB 전환이 꼬이지 않도록 방지
+    concurrency:
+      group: backend-production-deploy
+      cancel-in-progress: false
     # PR 때 실행되지 않도록 조건 추가
     if: |
       (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
