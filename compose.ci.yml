@@ -1,0 +1,31 @@
+# ci용 docker compose
+name: ktb-commnuity-ci
+
+services:
+  # 실행 확인용 mysql
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: cidb
+      MYSQL_ROOT_PASSWORD: cidb
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -p$$MYSQL_ROOT_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    # 도커 파일로 이미지 생성한 것 이용
+    image: ktb-community-backend:${IMAGE_TAG}
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/cidb
+      DB_USERNAME: root
+      DB_PASSWORD: cidb
+      JWT_SECRET: secret-key-ci-test-jwt-secret-key-test
+    depends_on:
+      mysql:
+          condition: service_healthy
