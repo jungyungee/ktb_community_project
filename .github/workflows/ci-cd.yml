@@ -81,7 +81,7 @@ jobs:
     # PR 때 실행되지 않도록 조건 추가
     if: |
       github.event_name == 'push' &&
-     (
+      (
         github.ref == 'refs/heads/main' ||
         github.ref == 'refs/heads/feature/#23-ci_cd'
       )
