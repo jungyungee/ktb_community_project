@@ -123,9 +123,9 @@ jobs:
         run: |
           CURRENT_TARGET_GROUP=$(aws elbv2 describe-rules \
             --rule-arns "${{ secrets.ALB_RULE_ARN }}" \
-            --query 'Rules[0].Actions[0].ForwardConfig.TargetGroups[0].TargetGroupArn' \
+            --query 'Rules[0].Actions[0].TargetGroupArn' \
             --output text)
-
+          echo "active_target_group=$CURRENT_TARGET_GROUP" >> "$GITHUB_OUTPUT"
           if [ "$CURRENT_TARGET_GROUP" = "${{ secrets.BLUE_TARGET_GROUP_ARN }}" ]; then
             echo "active=blue" >> "$GITHUB_OUTPUT"
             echo "inactive=green" >> "$GITHUB_OUTPUT"
@@ -173,9 +173,46 @@ jobs:
                 -p backend-${{ steps.deployment.outputs.inactive }} \
                 up -d --force-recreate backend
             "
-      # 실패 시 기존의 서비스로 하고, 새로운 Green 은 실패처리
+      # 헬스체크
+      - name: inactive target health check
+        run: |
+          aws elbv2 wait target-in-service \
+                      --target-group-arn "${{ steps.deployment.outputs.inactive_target_group }}"
+      # 실패 시 기존의 서비스로 하고, 워크플로우가 중단되어 새로운 버전은 실패처리
       # 성공 시 ALB 트래픽 전환
+      - name: ALB traffic switch
+        run: |
+          aws elbv2 modify-rule \
+            --rule-arn "${{ secrets.ALB_RULE_ARN }}" \
+            --actions \
+              "Type=forward,TargetGroupArn=${{ steps.deployment.outputs.inactive_target_group }}"
 
-      # 전환 후에도, 기존 컨테이너를 잠시 유지
+      # 전환 후에도, 기존 컨테이너를 잠시 유지하면서
+      # 실제 서비스의 헬스체크 필요
+      - name: deploy health check
+        id: deploy_health
+        continue-on-error: true
+        run: |
+          for i in {1..10}; do
+            if curl -f https://yungee-community.cloud/server-api/health; then
+              echo "Post deployment health check success"
+              exit 0
+            fi
 
-      # 롤백: 새 Green 에서 문제 발생 시, 기존 Blue로 전환
+            echo "Waiting ($i/10)"
+            sleep 5
+          done
+
+          echo "Post deployment health check failed"
+          exit 1
+      # 롤백: 전환 후 헬스체크에서 문제 발생 시, 기존으로 전환
+      - name: rollback
+        if: steps.deploy_health.outcome == 'failure'
+        run: |
+          aws elbv2 modify-rule \
+            --rule-arn "${{ secrets.ALB_RULE_ARN }}" \
+            --actions \
+              "Type=forward,TargetGroupArn=${{ steps.deployment.outputs.active_target_group }}"
+
+          echo "Rollback completed"
+          exit 1
