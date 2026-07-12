@@ -110,9 +110,69 @@ jobs:
 
       # Blue-Green 배포를 위해 현재 사용 중인 것을 확인 후,
       # 사용 중이지 않은 쪽에 새 버전을 띄움
+      # 1. AWS 인증
+      - name: AWS credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-southeast-2
+      # 2. 현재 사용 중인 대상 그룹 확인
+      - name: determine active environment
+        id: deployment
+        run: |
+          CURRENT_TARGET_GROUP=$(aws elbv2 describe-rules \
+            --rule-arns "${{ secrets.ALB_RULE_ARN }}" \
+            --query 'Rules[0].Actions[0].ForwardConfig.TargetGroups[0].TargetGroupArn' \
+            --output text)
 
-      # 배포 서버 접속 후에 사용중이지 않은 쪽을 새 이미지로 교체 후 헬스체크
+          if [ "$CURRENT_TARGET_GROUP" = "${{ secrets.BLUE_TARGET_GROUP_ARN }}" ]; then
+            echo "active=blue" >> "$GITHUB_OUTPUT"
+            echo "inactive=green" >> "$GITHUB_OUTPUT"
+            echo "inactive_port=8081" >> "$GITHUB_OUTPUT"
+            echo "inactive_target_group=${{ secrets.GREEN_TARGET_GROUP_ARN }}" >> "$GITHUB_OUTPUT"
+          elif [ "$CURRENT_TARGET_GROUP" = "${{ secrets.GREEN_TARGET_GROUP_ARN }}" ]; then
+            echo "active=green" >> "$GITHUB_OUTPUT"
+            echo "inactive=blue" >> "$GITHUB_OUTPUT"
+            echo "inactive_port=8080" >> "$GITHUB_OUTPUT"
+            echo "inactive_target_group=${{ secrets.BLUE_TARGET_GROUP_ARN }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "Unknown target group: $CURRENT_TARGET_GROUP"
+            exit 1
+          fi
+      # 3. 배포 서버 접속 후에 사용중이지 않은 쪽을 새 이미지로 배포 후 헬스체크
+      # 배포 서버 접속 (SSH 접속을 키 설정)
+      - name: configure SSH
+        run: |
+            mkdir -p ~/.ssh
+            
+            echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy-key.pem
+            chmod 600 ~/.ssh/deploy-key.pem
+            
+            ssh-keyscan -H "${{ secrets.BASTION_HOST }}" >> ~/.ssh/known_hosts
 
+      # 비활성 Blue/Green 환경에 새 이미지 배포
+      - name: deploy to inactive environment
+        run: |
+          ssh \
+            -i ~/.ssh/deploy-key.pem \
+            -o StrictHostKeyChecking=no \
+            -o ProxyCommand="ssh -i ~/.ssh/deploy-key.pem \
+              -o StrictHostKeyChecking=no \
+              -W %h:%p ubuntu@${{ secrets.BASTION_HOST }}" \
+            ubuntu@${{ secrets.BACKEND_HOST }} \
+            "
+              cd ~/ktb_community_project
+
+              docker pull \
+                ${{ secrets.DOCKERHUB_USERNAME }}/ktb-community-backend:${{ github.sha }}
+
+              IMAGE_TAG=${{ github.sha }} \
+              HOST_PORT=${{ steps.deployment.outputs.inactive_port }} \
+              docker compose \
+                -p backend-${{ steps.deployment.outputs.inactive }} \
+                up -d --force-recreate backend
+            "
       # 실패 시 기존의 서비스로 하고, 새로운 Green 은 실패처리
       # 성공 시 ALB 트래픽 전환
 
