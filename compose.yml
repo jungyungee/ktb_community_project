@@ -3,9 +3,9 @@ name: ktb-community
 services:
   backend:
     # 도커 파일로 이미지 생성
-    image: ktb-community-backend:1.0.0
+    image: ktb-community-backend:${IMAGE_TAG}
     ports:
-      - "8080:8080"
+      - "${HOST_PORT}:8080"
     environment:
       DB_URL: ${DB_URL}
       DB_USERNAME: ${DB_USERNAME}
