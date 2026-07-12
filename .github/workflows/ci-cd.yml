@@ -22,7 +22,7 @@ jobs:
     steps:
       # 깃허브 러너에 저장소를 클론
       - name: checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@v6
       # - 테스트 코드 작성 후 gradle Test 추가 필요
       # - jdk set up
       # - gradle test
@@ -52,9 +52,20 @@ jobs:
           docker compose -f compose.ci.yml logs backend
           exit 1
 
-      # 도커 저장
+      # 도커 이미지 저장 (tar 파일로)
+      - name: save docker image
+        run: |
+          docker save \
+          ktb-community-backend:${{ github.sha }} \
+          -o backend-image.tar
 
       # 아티팩트 저장소에 저장
+      - name: docker image upload - artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-image
+          path: backend-image.tar
+          retention-days: 1 # cd에서 바로 사용할 것이므로 짧게 보관
 
   # ci 에서 만드러진 artifact 이용해서
   # 도커 허브 push, 배포 서버에서 해당 이미지로 헬스체크

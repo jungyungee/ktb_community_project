@@ -25,7 +25,7 @@ services:
       DB_URL: jdbc:mysql://mysql:3306/cidb
       DB_USERNAME: root
       DB_PASSWORD: cidb
-      JWT_SECRET: secret-key-ci
+      JWT_SECRET: secret-key-ci-test-jwt-secret-key-test
     depends_on:
       mysql:
           condition: service_healthy
