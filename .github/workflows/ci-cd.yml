@@ -225,13 +225,7 @@ jobs:
             exit 1
           fi
 
-      # 대상그룹 헬스체크
-      - name: inactive target health check
-        run: |
-          aws elbv2 wait target-in-service \
-            --target-group-arn "${{ steps.deployment.outputs.inactive_target_group }}"
-      # 실패 시 기존의 서비스로 하고, 워크플로우가 중단되어 새로운 버전은 실패처리
-      # 성공 시 ALB 트래픽 전환
+      # ALB 트래픽 전환
       - name: ALB traffic switch
         run: |
           aws elbv2 modify-rule \
@@ -239,7 +233,15 @@ jobs:
             --actions \
               "Type=forward,TargetGroupArn=${{ steps.deployment.outputs.inactive_target_group }}"
 
-      # 전환 후에도, 기존 컨테이너를 잠시 유지하면서
+      # 전환된 대상 그룹이 healthy가 될 때까지 대기
+      - name: inactive target health check
+        run: |
+          aws elbv2 wait target-in-service \
+            --target-group-arn "${{ steps.deployment.outputs.inactive_target_group }}" \
+            --targets \
+              Id=${{ secrets.BACKEND_INSTANCE_ID }},Port=${{ steps.deployment.outputs.inactive_port }}
+
+      # 전환 성공 후에도, 기존 컨테이너를 잠시 유지하면서
       # 실제 서비스의 헬스체크 필요
       - name: deploy health check
         id: deploy_health
