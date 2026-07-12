@@ -11,6 +11,7 @@ on:
   push:
     branches:
       - main
+      - dev
   # 수동 작업
   workflow_dispatch:
 
