@@ -11,7 +11,6 @@ on:
   push:
     branches:
       - main
-      - 'feature/#23-ci_cd'
   # 수동 작업
   workflow_dispatch:
 
@@ -80,11 +79,8 @@ jobs:
       cancel-in-progress: false
     # PR 때 실행되지 않도록 조건 추가
     if: |
-      github.event_name == 'push' &&
-      (
-        github.ref == 'refs/heads/main' ||
-        github.ref == 'refs/heads/feature/#23-ci_cd'
-      )
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      github.event_name == 'workflow_dispatch'
 
     runs-on: ubuntu-latest
     steps:
