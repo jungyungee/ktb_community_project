@@ -177,7 +177,8 @@ jobs:
       - name: inactive target health check
         run: |
           aws elbv2 wait target-in-service \
-                      --target-group-arn "${{ steps.deployment.outputs.inactive_target_group }}"
+                      --
+  cd ~/ktb_community_projecttarget-group-arn "${{ steps.deployment.outputs.inactive_target_group }}"
       # 실패 시 기존의 서비스로 하고, 워크플로우가 중단되어 새로운 버전은 실패처리
       # 성공 시 ALB 트래픽 전환
       - name: ALB traffic switch
