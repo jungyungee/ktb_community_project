@@ -260,7 +260,10 @@ jobs:
         continue-on-error: true
         run: |
           for i in {1..10}; do
-            if curl -f https://yungee-community.cloud/server-api/health; then
+            if curl -fsS \
+              --connect-timeout 3 \
+              --max-time 5 \
+              https://yungee-community.cloud/server-api/health; then
               echo "Post deployment health check success"
               exit 0
             fi
