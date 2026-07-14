@@ -174,7 +174,7 @@ jobs:
               "grep -q '^JWT_SECRET=' .env || { echo 'JWT_SECRET is missing'; exit 1; }",
               "docker pull ${{ secrets.DOCKERHUB_USERNAME }}/ktb-community-backend:${{ github.sha }}",
               "IMAGE_TAG=${{ github.sha }} HOST_PORT=${{ steps.deployment.outputs.inactive_port }} docker compose -p backend-${{ steps.deployment.outputs.inactive }} up -d --force-recreate backend",
-              "i=1; while [ \$i -le 20 ]; do if curl -f http://localhost:${{ steps.deployment.outputs.inactive_port }}/server-api/health; then echo 'Container health check success'; exit 0; fi; echo \"Waiting for container (\$i/20)\"; i=\$((i+1)); sleep 5; done",
+              "i=1; while [ \$i -le 20 ]; do if curl -fsS --connect-timeout 2 --max-time 3 http://localhost:${{ steps.deployment.outputs.inactive_port }}/server-api/health; then echo 'Container health check success'; exit 0; fi; echo \"Waiting for container (\$i/20)\"; i=\$((i+1)); sleep 3; done",
               "docker compose -p backend-${{ steps.deployment.outputs.inactive }} logs backend",
               "exit 1"
             ]
