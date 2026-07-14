@@ -27,9 +27,18 @@ jobs:
       # - jdk set up
       # - gradle test
 
-      # 이미지 빌드 - 도커파일 사용
+      # 이미지 빌드 - Docker Buildx와 GitHub Actions 캐시 사용
+      - name: set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        
       - name: image build
-        run: docker build -t ktb-community-backend:${{ github.sha }} .
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          tags: ktb-community-backend:${{ github.sha }}
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       # 만들어진 이미지로 도커 run (도커 컴포즈 사용)
       - name: docker run
@@ -67,7 +76,7 @@ jobs:
           path: backend-image.tar
           retention-days: 1 # cd에서 바로 사용할 것이므로 짧게 보관
 
-  # ci 에서 만드러진 artifact 이용해서
+  # ci 에서 만들어진 artifact 이용해서
   # 도커 허브 push, 배포 서버에서 해당 이미지로 헬스체크
   # 성공 여부에 따라 롤백 혹은 유지
   cd:
@@ -155,6 +164,10 @@ jobs:
         env:
           BACKEND_ENV: ${{ secrets.BACKEND_ENV }}
         run: |
+          if [ -z "$BACKEND_ENV" ]; then
+            echo "BACKEND_ENV secret is empty or not registered"
+            exit 1
+          fi
           BACKEND_ENV_BASE64=$(printf '%s' "$BACKEND_ENV" | base64 -w 0)
           
           cat > ssm-parameters.json <<EOF
@@ -163,9 +176,14 @@ jobs:
               "cd /home/ubuntu/ktb_community_project",
               "printf '%s' '${BACKEND_ENV_BASE64}' | base64 -d > .env",
               "chmod 600 .env",
+              "test -s .env || { echo '.env is empty'; exit 1; }",
+              "grep -q '^DB_URL=' .env || { echo 'DB_URL is missing'; exit 1; }",
+              "grep -q '^DB_USERNAME=' .env || { echo 'DB_USERNAME is missing'; exit 1; }",
+              "grep -q '^DB_PASSWORD=' .env || { echo 'DB_PASSWORD is missing'; exit 1; }",
+              "grep -q '^JWT_SECRET=' .env || { echo 'JWT_SECRET is missing'; exit 1; }",
               "docker pull ${{ secrets.DOCKERHUB_USERNAME }}/ktb-community-backend:${{ github.sha }}",
               "IMAGE_TAG=${{ github.sha }} HOST_PORT=${{ steps.deployment.outputs.inactive_port }} docker compose -p backend-${{ steps.deployment.outputs.inactive }} up -d --force-recreate backend",
-              "i=1; while [ \$i -le 20 ]; do if curl -f http://localhost:${{ steps.deployment.outputs.inactive_port }}/server-api/health; then echo 'Container health check success'; exit 0; fi; echo \"Waiting for container (\$i/20)\"; i=\$((i+1)); sleep 5; done",
+              "i=1; while [ \$i -le 20 ]; do if curl -fsS --connect-timeout 2 --max-time 3 http://localhost:${{ steps.deployment.outputs.inactive_port }}/server-api/health; then echo 'Container health check success'; exit 0; fi; echo \"Waiting for container (\$i/20)\"; i=\$((i+1)); sleep 3; done",
               "docker compose -p backend-${{ steps.deployment.outputs.inactive }} logs backend",
               "exit 1"
             ]
@@ -251,7 +269,10 @@ jobs:
         continue-on-error: true
         run: |
           for i in {1..10}; do
-            if curl -f https://yungee-community.cloud/server-api/health; then
+            if curl -fsS \
+              --connect-timeout 3 \
+              --max-time 5 \
+              https://yungee-community.cloud/server-api/health; then
               echo "Post deployment health check success"
               exit 0
             fi
