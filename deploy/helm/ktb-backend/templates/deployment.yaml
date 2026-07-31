@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-deployment # 설치 시 지정하는 이름
+  namespace: {{ .Release.Namespace }} # 설치 시 네임스페이스 지정
+spec:
+  replicas: {{ .Values.replicaCount }} # 2가 될 것임
+
+  selector:
+    matchLabels:
+      app: {{ .Values.labels.app }} # ktb-community가 될 것임
+      tier: {{ .Values.labels.tier }} # backend 가 될 것임
+
+  strategy: # Values 로 빼지 않은 값
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.labels.app }} # ktb-community가 될 것임
+        tier: {{ .Values.labels.tier }} # backend 가 될 것임
+
+    spec:
+      containers:
+        - name: backend
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }} # IfNotPresent가 될 것임
+
+          ports:
+            - containerPort: 8080
+
+          envFrom:
+            - secretRef:
+                name: {{ .Release.Name }}-secret
+
+          resources:
+            requests:
+              cpu: {{ .Values.resources.requests.cpu }}
+              memory: {{ .Values.resources.requests.memory }}
+            limits:
+              cpu: {{ .Values.resources.limits.cpu }}
+              memory: {{ .Values.resources.limits.memory }}
+
+          startupProbe:
+            httpGet:
+              path: /server-api/health
+              port: 8080
+            periodSeconds: 5
+            failureThreshold: 24
+
+          readinessProbe:
+            httpGet:
+              path: /server-api/health
+              port: 8080
+            periodSeconds: 5
+            failureThreshold: 3
+
+          livenessProbe:
+            httpGet:
+              path: /server-api/health
+              port: 8080
+            periodSeconds: 15
+            failureThreshold: 3
