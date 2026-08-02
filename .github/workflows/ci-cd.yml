@@ -7,10 +7,11 @@ on:
     branches:
       - dev
       - main
-  # dev -> main merge 시 도커 이미지 push (실제 배포는 ArgoCD에서)
+  # dev 브랜치 merge 시 도커 이미지 push (실제 배포는 ArgoCD에서)
+  # 추후 운영 환경 분리 후 main 브랜치 기준으로 전환 예정
   push:
     branches:
-      - main
+      - dev
   # 수동 작업
   workflow_dispatch:
 
@@ -64,7 +65,7 @@ jobs:
       # 도커 허브 로그인
       - name: docker hub login
         if: |
-          (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+          (github.event_name == 'push' && github.ref == 'refs/heads/dev') ||
           github.event_name == 'workflow_dispatch'
         uses: docker/login-action@v4
         with:
@@ -74,7 +75,7 @@ jobs:
       # 도커 이미지에 태그 붙이기
       - name: tag docker image
         if: |
-          (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+          (github.event_name == 'push' && github.ref == 'refs/heads/dev') ||
           github.event_name == 'workflow_dispatch'
         run: |
           docker tag \
@@ -84,7 +85,7 @@ jobs:
       # 도커 이미지 푸시
       - name: push docker image
         if: |
-          (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+          (github.event_name == 'push' && github.ref == 'refs/heads/dev') ||
           github.event_name == 'workflow_dispatch'
         run: |
           docker push \
