@@ -1,0 +1,16 @@
+service:
+  spec: 
+    type: NodePort # 노드포트로 변경
+
+ports: 
+  web:
+    nodePort: 30080 # ALB 타겟 그룹 포트 고정
+    
+providers: 
+  kubernetesIngress:
+    enabled: true # Traefik이 Kubernetes의 Ingress 리소스를 감시하도록 하는 설정 enable
+    
+ingressClass: # traefik 이라는 이름의 IngressClass 생성하도록 하고, 이후 Ingress에서 같은 이름을 사용해서 처리 
+  enabled: true
+  name: traefik
+  isDefaultClass: false # 이름 맞는 것만 명시적으로 연결

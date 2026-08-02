@@ -1,0 +1,24 @@
+replicaCount: 2
+
+image:
+  repository: jungyungee/ktb-community-backend
+  tag: "1.0.0" # 버전 명시
+  pullPolicy: IfNotPresent
+  
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+  
+resources:
+  requests:
+    cpu: 300m
+    memory: 384Mi
+    
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+labels:
+  app: ktb-community
+  tier: backend

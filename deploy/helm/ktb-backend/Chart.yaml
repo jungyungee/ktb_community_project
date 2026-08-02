@@ -1,0 +1,19 @@
+apiVersion: v2
+name: ktb-backend
+description: A helm chart for deploying ktb-community backend server
+type: application
+version: 1.0.0 # 현재 차트 자체의 버전
+appVersion: "1.0.0" # 애플리케이션의 버전
+
+maintainers:
+  - name: Rosa Jung
+    email: jungyungee0610@gmail.com
+    
+keywords:
+  - backend
+  - server
+  
+home: https://yungee-community.cloud
+sources:
+  - https://github.com/jungyungee/ktb_community_project
+
