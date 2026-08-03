@@ -1,7 +1,7 @@
 replicaCount: 2
 image:
   repository: jungyungee/ktb-community-backend
-  tag: "0b858de000fc6f4c100d2f2bc49730bac89800a5" # 버전 명시
+  tag: "f69e5e22431a762a1677bef18f4f60fa10935905" # 버전 명시
   pullPolicy: IfNotPresent
 service:
   type: ClusterIP
