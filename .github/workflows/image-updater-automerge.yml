@@ -1,0 +1,33 @@
+name: Auto Merge Image Updater PR
+
+on:
+  # Image Updater가 PR을 생성/수정할 때 실행
+  pull_request_target:
+    types:
+      - opened
+      - reopened
+      - synchronize
+    branches:
+      - dev
+
+# PR 자동 병합을 위한 권한 부여
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  enable-auto-merge:
+    # Image Updater가 생성한 PR인 경우에만 실행
+    if: |
+      github.event.pull_request.user.login == 'argocd-image-updater' &&
+      github.event.pull_request.base.ref == 'dev'
+    runs-on: ubuntu-latest
+
+    steps:
+      # Image Updater가 생성한 PR에 Auto Merge 활성화
+      # (필수 조건이 모두 통과하면 GitHub가 자동으로 병합)
+      - name: Enable auto-merge
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: gh pr merge "$PR_URL" --auto --squash
