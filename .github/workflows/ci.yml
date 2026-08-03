@@ -12,6 +12,9 @@ on:
   push:
     branches:
       - dev
+    # 자동 커밋 무한 생성 방지
+    paths-ignore:
+      - deploy/helm/ktb-backend/values.yaml
   # 수동 작업
   workflow_dispatch:
 
