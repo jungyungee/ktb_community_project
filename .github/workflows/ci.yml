@@ -7,6 +7,9 @@ on:
     branches:
       - dev
       - main
+     # 자동 커밋 무한 생성 방지
+    paths-ignore:
+      - "deploy/helm/ktb-backend/values.yaml"
   # dev 브랜치 merge 시 도커 이미지 push (실제 배포는 ArgoCD에서)
   # 추후 운영 환경 분리 후 main 브랜치 기준으로 전환 예정
   push:
@@ -14,7 +17,7 @@ on:
       - dev
     # 자동 커밋 무한 생성 방지
     paths-ignore:
-      - deploy/helm/ktb-backend/values.yaml
+      - "deploy/helm/ktb-backend/values.yaml"
   # 수동 작업
   workflow_dispatch:
 
