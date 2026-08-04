@@ -160,6 +160,7 @@ public class PostService {
     }
 
     // 게시물 단건 상세 조회
+    @Transactional // 조회 수 구현을 위한 변경 감지를 위해 트랜잭션 추가
     public PostDetailResponse getPost(Long userId, Long postId){
         if (userId == null) {
             throw new BusinessException(ErrorCode.UNAUTHORIZED);
@@ -169,6 +170,9 @@ public class PostService {
                 .orElseThrow(()->
                         new BusinessException(ErrorCode.POST_NOT_FOUND)
                 );
+        // 조회수 증가
+        post.increaseViewCount();
+
         // 사용자 작성 게시글 여부 (수정, 삭제 권한을 위해)
         boolean isOwner = post.getUser().getId().equals(userId);
         // 사용자 좋아요 여부 (좋아요 중복 불가 및 취소 처리를 위해)

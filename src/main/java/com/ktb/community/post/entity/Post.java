@@ -92,4 +92,9 @@ public class Post {
     public void increaseCommentCount() { this.commentCount++; }
 
     public void decreaseCommentCount() { this.commentCount--; }
+
+    // 게시글 조회 수 카운팅
+    public void increaseViewCount() {
+        this.viewCount++;
+    }
 }
