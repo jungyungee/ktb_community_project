@@ -170,8 +170,19 @@ public class PostService {
                 .orElseThrow(()->
                         new BusinessException(ErrorCode.POST_NOT_FOUND)
                 );
+        int before = post.getViewCount();
         // 조회수 증가
         post.increaseViewCount();
+        int after = post.getViewCount();
+
+        System.out.printf(
+                "[%s] Post=%d EntityHash=%d ViewCount %d -> %d%n",
+                Thread.currentThread().getName(),
+                postId,
+                System.identityHashCode(post),
+                before,
+                after
+        );
 
         // 사용자 작성 게시글 여부 (수정, 삭제 권한을 위해)
         boolean isOwner = post.getUser().getId().equals(userId);
