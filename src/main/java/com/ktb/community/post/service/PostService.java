@@ -160,19 +160,27 @@ public class PostService {
     }
 
     // 게시물 단건 상세 조회
-    @Transactional // 조회 수 구현을 위한 변경 감지를 위해 트랜잭션 추가
+    @Transactional // QueryDSL의 원자적 업데이트는 트랜잭션 내에서 수행됨
     public PostDetailResponse getPost(Long userId, Long postId){
         if (userId == null) {
             throw new BusinessException(ErrorCode.UNAUTHORIZED);
         }
+
+        // 원자적 UPDATE 실행 (조회보다 먼저 수행되어야 한다)
+        long updatedRows = postRepository.increaseViewCount(postId);
+
+        if (updatedRows <= 0) {
+            throw new BusinessException(ErrorCode.POST_NOT_FOUND);
+        }
+
         //게시글 조회
         Post post = postRepository.findById(postId)
                 .orElseThrow(()->
                         new BusinessException(ErrorCode.POST_NOT_FOUND)
                 );
-        int before = post.getViewCount();
-        // 조회수 증가
-        post.increaseViewCount();
+
+        // 조회 전 update 이므로 before 값을 확인할 수 없다
+        // (before 확인하려면 조회를 먼저 해야하므로 의도한대로 동작하지 않을 수 있음)
         int after = post.getViewCount();
 
         System.out.printf(
@@ -180,7 +188,6 @@ public class PostService {
                 Thread.currentThread().getName(),
                 postId,
                 System.identityHashCode(post),
-                before,
                 after
         );
 
