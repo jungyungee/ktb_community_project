@@ -179,18 +179,6 @@ public class PostService {
                         new BusinessException(ErrorCode.POST_NOT_FOUND)
                 );
 
-        // 조회 전 update 이므로 before 값을 확인할 수 없다
-        // (before 확인하려면 조회를 먼저 해야하므로 의도한대로 동작하지 않을 수 있음)
-        int after = post.getViewCount();
-
-        System.out.printf(
-                "[%s] Post=%d EntityHash=%d ViewCount %d -> %d%n",
-                Thread.currentThread().getName(),
-                postId,
-                System.identityHashCode(post),
-                after
-        );
-
         // 사용자 작성 게시글 여부 (수정, 삭제 권한을 위해)
         boolean isOwner = post.getUser().getId().equals(userId);
         // 사용자 좋아요 여부 (좋아요 중복 불가 및 취소 처리를 위해)
