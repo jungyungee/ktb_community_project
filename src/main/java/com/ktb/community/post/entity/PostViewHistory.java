@@ -1,6 +1,5 @@
 package com.ktb.community.post.entity;
 
-import com.ktb.community.post.entity.Post;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
