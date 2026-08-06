@@ -33,4 +33,34 @@ public interface PostViewHistoryRepository extends JpaRepository<PostViewHistory
             @Param("now")LocalDateTime now,
             @Param("threshold") LocalDateTime threshold
     );
+
+
+    // 최초 조회의 경우 INSERT 하는 로직
+    // INSERT 성공 시 1 반환
+    // INSERT 실패 시 0 반환
+    @Modifying
+    @Query(
+            value = """
+            INSERT IGNORE INTO post_view_history (
+                post_id,
+                viewer_type,
+                viewer_id,
+                last_viewed_at
+            )
+            VALUES (
+                :postId,
+                :viewerType,
+                :viewerId,
+                :now
+            )
+            """,
+            nativeQuery = true
+    )
+
+    int insertIfAbsent(
+            @Param("postId") Long postId,
+            @Param("viewerType") String viewerType,
+            @Param("viewerId") String viewerId,
+            @Param("now") LocalDateTime now
+    );
 }
