@@ -1,10 +1,10 @@
 package com.ktb.community.post.controller;
 
+import com.ktb.community.global.cookie.VisitorCookieManager;
 import com.ktb.community.global.response.ApiResponse;
 import com.ktb.community.post.dto.*;
 import com.ktb.community.post.entity.ViewerType;
 import com.ktb.community.post.service.PostService;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -22,8 +22,8 @@ public class PostController {
     // 게시글 post 요청이 오면, postService를 호출
     // final 로 입력값 고정
     private final PostService postService;
-    private static final String VISITOR_ID_COOKIE_NAME = "visitorId";
-    private static final int VISITOR_ID_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
+    // 쿠키 관련 컴포넌트 주입
+    private final VisitorCookieManager visitorCookieManager;
 
     // 클라이언트가 보낸 JSON을 PostRequest로 받고
     // postService 의 메서드를 호출해서 비즈니스 로직 수행, 디비에 저장 및 업데이트
@@ -70,12 +70,12 @@ public class PostController {
         } else {
             // 로그인하지 않은 조회 = 비회원 간주
             viewerType = ViewerType.VISITOR;
-            viewerId = findVisitorId(servletRequest); // 비회원의 경우 쿠키에 이전 조회 내역이 있는지
+            viewerId = visitorCookieManager.findVisitorId(servletRequest); // 비회원의 경우 쿠키에 이전 조회 내역이 있는지
 
             // 쿠키에 이전 조회 내역이 없다면
             if (viewerId == null){
                 viewerId = UUID.randomUUID().toString();
-                addVisitorIdCookie(servletResponse, viewerId);
+                visitorCookieManager.addVisitorIdCookie(servletResponse, viewerId);
             }
         }
 
@@ -105,33 +105,5 @@ public class PostController {
     ){
         Long userId = (Long) servletRequest.getAttribute("userId");
         postService.deletePost(userId, postId);
-    }
-
-    // visitor 쿠키 조회 메서드 (비회원 방문 기록 판정을 위해)
-    private String findVisitorId(HttpServletRequest servletRequest){
-        Cookie[] cookies = servletRequest.getCookies();
-
-        if (cookies == null){
-            return null; // 쿠키가 없다면 발급 메서드로 갈 수 있도록 함
-        }
-
-        for (Cookie cookie : cookies) {
-            if (VISITOR_ID_COOKIE_NAME.equals(cookie.getName())) {
-                return cookie.getValue();
-            }
-        }
-
-        return null;
-    }
-
-    // visitor 쿠키 발급 메서드
-    private void addVisitorIdCookie(HttpServletResponse servletResponse, String visitorId){
-        Cookie cookie = new Cookie(VISITOR_ID_COOKIE_NAME, visitorId);
-
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-        cookie.setMaxAge(VISITOR_ID_COOKIE_MAX_AGE);
-
-        servletResponse.addCookie(cookie);
     }
 }
