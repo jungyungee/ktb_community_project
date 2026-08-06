@@ -33,11 +33,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String accessToken = authorizationHeader.substring(7);
 
             // 추출한 accessToken 이용해서 검증, id 추출 수행
-            if (jwtProvider.validateToken(accessToken)){
-                Long userId = jwtProvider.getUserId(accessToken);
-                // 이 요청 안에 userId를 저장해두어서 컨트롤러에서 꺼낼 수 있도록
-                request.setAttribute("userId", userId);
+            if (!jwtProvider.validateToken(accessToken)) {
+                // 토큰이 있어도 만료 등으로 validate 하지 않으면 401 실패
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                return;
             }
+            Long userId = jwtProvider.getUserId(accessToken);
+            // 이 요청 안에 userId를 저장해두어서 컨트롤러에서 꺼낼 수 있도록
+            request.setAttribute("userId", userId);
         }
 
         // 필터를 끝내고 다음 단계 (컨트롤러)로 넘김
