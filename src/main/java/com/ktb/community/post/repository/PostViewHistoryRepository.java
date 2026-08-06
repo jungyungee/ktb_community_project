@@ -21,7 +21,7 @@ public interface PostViewHistoryRepository extends JpaRepository<PostViewHistory
         SET pvh.lastViewedAt = :now
         WHERE pvh.post.id = :postId
             AND pvh.viewerType = :viewerType
-            AND pvh.viewerId = :viewwerId
+            AND pvh.viewerId = :viewerId
             AND pvh.lastViewedAt <= :threshold
     """)
 
