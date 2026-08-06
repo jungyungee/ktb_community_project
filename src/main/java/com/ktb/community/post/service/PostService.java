@@ -5,10 +5,13 @@ import com.ktb.community.global.exception.ErrorCode;
 import com.ktb.community.like.repository.LikeRepository;
 import com.ktb.community.post.cursor.PostCursor;
 import com.ktb.community.post.dto.*;
+import com.ktb.community.post.entity.ViewerType;
+import com.ktb.community.post.repository.PostViewHistoryRepository;
 import com.ktb.community.user.entity.User;
 import com.ktb.community.post.entity.Post;
 import com.ktb.community.post.repository.PostRepository;
 import com.ktb.community.user.repository.UserRepository;
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,6 +28,9 @@ public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final LikeRepository likeRepository;
+    private final PostViewHistoryService postViewHistoryService;
+    private final EntityManager entityManager;
+    private final PostViewHistoryRepository postViewHistoryRepository;
 
     // 유저 Id에 따라 로그인 한 유저를 확인
     // (필터에서 userId가 request에 저장되어 있음)
@@ -160,43 +166,56 @@ public class PostService {
     }
 
     // 게시물 단건 상세 조회
-    @Transactional // QueryDSL의 원자적 업데이트는 트랜잭션 내에서 수행됨
-    public PostDetailResponse getPost(Long userId, Long postId){
-        if (userId == null) {
-            throw new BusinessException(ErrorCode.UNAUTHORIZED);
-        }
+    @Transactional // 조회 기록 확인과 조회수 증가의 원자성 보장을 위해
+    public PostDetailResponse getPost(Long userId, Long postId, ViewerType viewerType, String viewerId) {
+        // 게시글 조회는 비회원 유저도 가능하므로 인증 확인 부분은 제거
 
-        // 원자적 UPDATE 실행 (조회보다 먼저 수행되어야 한다)
-        long updatedRows = postRepository.increaseViewCount(postId);
-
-        if (updatedRows <= 0) {
-            throw new BusinessException(ErrorCode.POST_NOT_FOUND);
-        }
-
-        //게시글 조회
+        // 1. 게시글 조회 - 존재 여부 확인
         Post post = postRepository.findById(postId)
                 .orElseThrow(()->
                         new BusinessException(ErrorCode.POST_NOT_FOUND)
                 );
 
-        // 사용자 작성 게시글 여부 (수정, 삭제 권한을 위해)
-        boolean isOwner = post.getUser().getId().equals(userId);
+        // 2. 작성자 여부 판단
+        //    수정, 삭제 권한을 위해서도 필요
+        boolean isOwner = userId != null && post.getUser().getId().equals(userId);
+
+        // 3. 작성자가 아닐 때에만 조회 기록 판정 로직으로
+        if(!isOwner) {
+            // 조회수 증가시킬 수 있는지 없는지 판정
+            boolean CountableView =
+                    postViewHistoryService.viewCounter(postId, viewerType, viewerId);
+
+            // 증가시켜도 되면 증가
+            if(CountableView) {
+                postRepository.increaseViewCount(postId);
+            }
+        }
+
+        // 벌크 UPDATE 이후 영속성 컨텍스트 내용 clear - 실제 DB와 일치할 수 있도록
+        entityManager.clear();
+
+        // 4. 최신 조회수 반영을 위한 재조회
+        Post latestPost = postRepository.findById(postId)
+                .orElseThrow(()->new BusinessException(ErrorCode.POST_NOT_FOUND));
+
         // 사용자 좋아요 여부 (좋아요 중복 불가 및 취소 처리를 위해)
-        boolean liked = likeRepository.existsByUserIdAndPostId(userId, postId);
+        boolean liked = userId != null
+                && likeRepository.existsByUserIdAndPostId(userId, postId);
 
         return new PostDetailResponse(
-                post.getId(),
-                post.getTitle(),
-                post.getContent(),
-                post.getPostImageUrl(),
-                post.getCreatedAt(),
+                latestPost.getId(),
+                latestPost.getTitle(),
+                latestPost.getContent(),
+                latestPost.getPostImageUrl(),
+                latestPost.getCreatedAt(),
                 new PostAuthorResponse(
-                        post.getUser().getNickname(),
-                        post.getUser().getProfileImageUrl()
+                        latestPost.getUser().getNickname(),
+                        latestPost.getUser().getProfileImageUrl()
                 ),
-                post.getLikeCount(),
-                post.getCommentCount(),
-                post.getViewCount(),
+                latestPost.getLikeCount(),
+                latestPost.getCommentCount(),
+                latestPost.getViewCount(),
                 liked,
                 isOwner
         );

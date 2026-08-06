@@ -1,6 +1,5 @@
 package com.ktb.community.post.service;
 
-import com.ktb.community.post.entity.PostViewHistory;
 import com.ktb.community.post.entity.ViewerType;
 import com.ktb.community.post.repository.PostViewHistoryRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +12,7 @@ import java.time.LocalDateTime;
 public class PostViewHistoryService {
     private final PostViewHistoryRepository postViewHistoryRepository;
 
-    // 조회수 로직 구현
+    // 조회 판별 로직 구현 - 조건에 따라서 증가시킬 수 있는지 없는지를 판정해주는 메서드
     public boolean viewCounter(Long postId, ViewerType viewerType, String viewerId) {
         LocalDateTime now = LocalDateTime.now(); // 현재 시간
         LocalDateTime threshold = now.minusMinutes(1); // 1분 내 조회인지 판별을 위해 (현재시간-1을 넘김)
