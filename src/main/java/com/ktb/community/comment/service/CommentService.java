@@ -9,6 +9,7 @@ import com.ktb.community.global.exception.ErrorCode;
 import com.ktb.community.post.entity.Post;
 import com.ktb.community.user.entity.User;
 import com.ktb.community.post.repository.PostRepository;
+import com.ktb.community.user.mapper.AuthorResponseMapper;
 import com.ktb.community.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ public class CommentService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
+    private final AuthorResponseMapper authorResponseMapper;
 
     // 댓글 추가
     @Transactional
@@ -113,10 +115,7 @@ public class CommentService {
                         comment.getId(),
                         comment.getContent(),
                         comment.getCreatedAt(),
-                        new CommentAuthorResponse(
-                                comment.getUser().getNickname(),
-                                comment.getUser().getProfileImageUrl()
-                        ),
+                        authorResponseMapper.toCommentAuthorResponse(comment.getUser()),
                         userId != null && comment.getUser().getId().equals(userId)
                 ))
                 .toList();
