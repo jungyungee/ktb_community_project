@@ -39,6 +39,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom{
         // post에서 위에 정의한 condition에 맞게 가져오고, 정렬해서 내보내기
         return queryFactory
                 .selectFrom(post)
+                .join(post.user).fetchJoin()
                 .where(condition)
                 .orderBy(
                         post.createdAt.desc(),
