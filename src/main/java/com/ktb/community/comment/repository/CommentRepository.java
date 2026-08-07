@@ -18,7 +18,8 @@ public interface CommentRepository extends JpaRepository<Comment, Long>, Comment
     """)
     int deleteByPostId(@Param("postId") Long postId);
 
-    // commentId + userId 조건으로 댓글 조회
+    // 수정을 위한 댓글 조회
+    // commentId + userId 조건으로
     @Query("""
         SELECT c
         FROM Comment c
@@ -30,7 +31,8 @@ public interface CommentRepository extends JpaRepository<Comment, Long>, Comment
             @Param("userId") Long userId
     );
 
-    // 삭제를 위해 post도 같이 가져오는 조회
+    // 삭제를 위한 댓글 조회
+    // commentId + userId + post 까지
     @Query("""
         SELECT c
         FROM Comment c

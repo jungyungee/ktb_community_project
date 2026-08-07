@@ -191,11 +191,15 @@ public class CommentService {
         if (userId == null) {
             throw new BusinessException(ErrorCode.UNAUTHORIZED);
         }
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(()->new BusinessException(ErrorCode.COMMENT_NOT_FOUND));
-        if(!comment.getUser().getId().equals(userId)){
-            throw new BusinessException(ErrorCode.NOT_COMMENT_OWNER);
-        }
+        // post 까지 같이 가져오므로 post 추가 조회를 줄일 수 있음
+        Comment comment = commentRepository.findByIdAndUserIdWithPost(commentId, userId)
+                .orElseThrow(() -> {
+                    if (!commentRepository.existsById(commentId)) {
+                        return new BusinessException(ErrorCode.COMMENT_NOT_FOUND);
+                    }
+                    return new BusinessException(ErrorCode.NOT_COMMENT_OWNER);
+                });
+
         Post post = comment.getPost();
         post.decreaseCommentCount();
         commentRepository.delete(comment);
