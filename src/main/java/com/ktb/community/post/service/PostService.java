@@ -1,5 +1,6 @@
 package com.ktb.community.post.service;
 
+import com.ktb.community.comment.repository.CommentRepository;
 import com.ktb.community.global.exception.BusinessException;
 import com.ktb.community.global.exception.ErrorCode;
 import com.ktb.community.like.repository.LikeRepository;
@@ -31,6 +32,7 @@ public class PostService {
     private final PostViewHistoryService postViewHistoryService;
     private final EntityManager entityManager;
     private final PostViewHistoryRepository postViewHistoryRepository;
+    private final CommentRepository commentRepository;
 
     // 유저 Id에 따라 로그인 한 유저를 확인
     // (필터에서 userId가 request에 저장되어 있음)
@@ -263,6 +265,10 @@ public class PostService {
         if (!post.getUser().getId().equals(userId)){
             throw new BusinessException(ErrorCode.NOT_POST_OWNER);
         }
+        // 게시글 삭제 전 연관 데이터 삭제
+        commentRepository.deleteByPostId(postId);
+        likeRepository.deleteByPostId(postId);
+        postViewHistoryRepository.deleteByPostId(postId);
         // 게시글 삭제
         postRepository.delete(post);
     }
