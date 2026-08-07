@@ -166,7 +166,7 @@ public class CommentService {
 
         // comment Id, userId 를 통해 가져온 comment
         Comment comment = commentRepository.findByIdAndUserId(commentId, userId)
-즈                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_COMMENT_OWNER));
+                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_COMMENT_OWNER));
 
         comment.update(
                 request.getContent()
