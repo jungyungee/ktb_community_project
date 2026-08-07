@@ -1,7 +1,6 @@
 package com.ktb.community.user.mapper;
 
 import com.ktb.community.comment.dto.CommentAuthorResponse;
-import com.ktb.community.comment.entity.Comment;
 import com.ktb.community.post.dto.PostAuthorResponse;
 import com.ktb.community.user.entity.User;
 import com.ktb.community.user.entity.UserStatus;

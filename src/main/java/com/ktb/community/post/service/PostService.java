@@ -210,7 +210,7 @@ public class PostService {
                 latestPost.getContent(),
                 latestPost.getPostImageUrl(),
                 latestPost.getCreatedAt(),
-                authorResponseMapper.toPostAuthorResponse(post.getUser()),
+                authorResponseMapper.toPostAuthorResponse(latestPost.getUser()),
                 latestPost.getLikeCount(),
                 latestPost.getCommentCount(),
                 latestPost.getViewCount(),
