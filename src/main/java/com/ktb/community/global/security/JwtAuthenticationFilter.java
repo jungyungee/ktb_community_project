@@ -1,5 +1,7 @@
 package com.ktb.community.global.security;
 
+import com.ktb.community.user.entity.UserStatus;
+import com.ktb.community.user.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,6 +19,7 @@ import java.io.IOException;
 @RequiredArgsConstructor // 생성자 자동 생성
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtProvider jwtProvider;
+    private final UserRepository userRepository;
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
@@ -39,6 +42,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
             Long userId = jwtProvider.getUserId(accessToken);
+            // JWT 가 유효해도 DB에서 유저가 없거나, 탈퇴한 유저이면 401로 차단
+            // 탈퇴한 유저는 API 호출 불가
+            boolean activeUser = userRepository.findById(userId)
+                    .map(user -> user.getStatus() != UserStatus.DELETED)
+                    .orElse(false);
+            if (!activeUser) {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+                return;
+            }
             // 이 요청 안에 userId를 저장해두어서 컨트롤러에서 꺼낼 수 있도록
             request.setAttribute("userId", userId);
         }
