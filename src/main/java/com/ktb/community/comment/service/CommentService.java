@@ -58,15 +58,6 @@ public class CommentService {
 
     // 댓글 리스트 조회
     public CommentListResponse getCommentList(String cursor, Long postId, Long userId){
-        // 댓글은 유저 (isOwner 필요), 게시글 (댓글과 연결) 필요
-        // 로그인 여부 확인
-        if (userId == null) {
-            throw new BusinessException(ErrorCode.UNAUTHORIZED);
-        }
-        // 유저 존재 여부 확인
-        if (!userRepository.existsById(userId)) {
-            throw new BusinessException(ErrorCode.USER_NOT_FOUND);
-        }
         // 게시글 존재 여부 확인
         if (!postRepository.existsById(postId)) {
             throw new BusinessException(ErrorCode.POST_NOT_FOUND);
@@ -126,7 +117,7 @@ public class CommentService {
                                 comment.getUser().getNickname(),
                                 comment.getUser().getProfileImageUrl()
                         ),
-                        comment.getUser().getId().equals(userId)
+                        userId != null && comment.getUser().getId().equals(userId)
                 ))
                 .toList();
 
