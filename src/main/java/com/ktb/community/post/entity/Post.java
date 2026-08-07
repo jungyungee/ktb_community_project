@@ -79,22 +79,4 @@ public class Post {
         this.updatedAt = LocalDateTime.now();
     }
 
-    // 게시글 좋아요 수 카운팅
-    public void increaseLikeCount(){
-        this.likeCount++;
-    }
-
-    public void decreaseLikeCount(){
-        this.likeCount--;
-    }
-
-    // 게시글 댓글 수 카운팅
-    public void increaseCommentCount() { this.commentCount++; }
-
-    // 게시글 댓글 수 음수 막기
-    public void decreaseCommentCount() {
-        if (this.commentCount > 0) {
-            this.commentCount--;
-        }
-    }
 }

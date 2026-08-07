@@ -49,7 +49,7 @@ public class CommentService {
         );
         Comment savedComment = commentRepository.save(comment);
         // 게시글 내 댓글 카운트 추가
-        post.increaseCommentCount();
+        postRepository.increaseCommentCount(postId);
 
         return new CommentResponse(
                 savedComment.getId(),
@@ -190,7 +190,7 @@ public class CommentService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.NOT_COMMENT_OWNER));
 
         Post post = comment.getPost();
-        post.decreaseCommentCount();
         commentRepository.delete(comment);
+        postRepository.decreaseCommentCount(post.getId());
     }
 }

@@ -9,6 +9,7 @@ import com.ktb.community.post.entity.Post;
 import com.ktb.community.post.repository.PostRepository;
 import com.ktb.community.user.entity.User;
 import com.ktb.community.user.repository.UserRepository;
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ public class LikeService {
     private final LikeRepository likeRepository;
     private final UserRepository userRepository;
     private final PostRepository postRepository;
+    private final EntityManager entityManager;
 
     // 좋아요 추가 및 취소
     // post, delete 로 구분하지 않고, 이미 좋아요된 게시글이라면 자동으로 취소
@@ -46,11 +48,15 @@ public class LikeService {
             // 이미 좋아요 한 엔티티면 삭제
             likeRepository.delete(likeExist.get());
             // likeCount도 하나 내림
-            post.decreaseLikeCount();
+            entityManager.flush();
+            postRepository.decreaseLikeCount(postId);
+            entityManager.clear();
+            Post latestPost = postRepository.findById(postId)
+                    .orElseThrow(()-> new BusinessException(ErrorCode.POST_NOT_FOUND));
 
             return new LikeResponse(
-                    post.getId(),
-                    post.getLikeCount(),
+                    latestPost.getId(),
+                    latestPost.getLikeCount(),
                     false
             );
         }
@@ -62,11 +68,15 @@ public class LikeService {
         );
 
         likeRepository.save(like);
-        post.increaseLikeCount();
+        entityManager.flush();
+        postRepository.increaseLikeCount(postId);
+        entityManager.clear();
+        Post latestPost = postRepository.findById(postId)
+                .orElseThrow(()-> new BusinessException(ErrorCode.POST_NOT_FOUND));
 
         return new LikeResponse(
-                post.getId(),
-                post.getLikeCount(),
+                latestPost.getId(),
+                latestPost.getLikeCount(),
                 true
         );
     }
