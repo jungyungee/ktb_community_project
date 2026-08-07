@@ -9,6 +9,7 @@ import com.ktb.community.global.exception.ErrorCode;
 import com.ktb.community.post.entity.Post;
 import com.ktb.community.user.entity.User;
 import com.ktb.community.post.repository.PostRepository;
+import com.ktb.community.user.mapper.AuthorResponseMapper;
 import com.ktb.community.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ public class CommentService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
+    private final AuthorResponseMapper authorResponseMapper;
 
     // 댓글 추가
     @Transactional
@@ -47,7 +49,7 @@ public class CommentService {
         );
         Comment savedComment = commentRepository.save(comment);
         // 게시글 내 댓글 카운트 추가
-        post.increaseCommentCount();
+        postRepository.increaseCommentCount(postId);
 
         return new CommentResponse(
                 savedComment.getId(),
@@ -58,15 +60,6 @@ public class CommentService {
 
     // 댓글 리스트 조회
     public CommentListResponse getCommentList(String cursor, Long postId, Long userId){
-        // 댓글은 유저 (isOwner 필요), 게시글 (댓글과 연결) 필요
-        // 로그인 여부 확인
-        if (userId == null) {
-            throw new BusinessException(ErrorCode.UNAUTHORIZED);
-        }
-        // 유저 존재 여부 확인
-        if (!userRepository.existsById(userId)) {
-            throw new BusinessException(ErrorCode.USER_NOT_FOUND);
-        }
         // 게시글 존재 여부 확인
         if (!postRepository.existsById(postId)) {
             throw new BusinessException(ErrorCode.POST_NOT_FOUND);
@@ -122,11 +115,8 @@ public class CommentService {
                         comment.getId(),
                         comment.getContent(),
                         comment.getCreatedAt(),
-                        new CommentAuthorResponse(
-                                comment.getUser().getNickname(),
-                                comment.getUser().getProfileImageUrl()
-                        ),
-                        comment.getUser().getId().equals(userId)
+                        authorResponseMapper.toCommentAuthorResponse(comment.getUser()),
+                        userId != null && comment.getUser().getId().equals(userId)
                 ))
                 .toList();
 
@@ -174,14 +164,9 @@ public class CommentService {
             throw new BusinessException(ErrorCode.UNAUTHORIZED);
         }
 
-        // comment Id를 통해 가져온 comment
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(()-> new BusinessException(ErrorCode.COMMENT_NOT_FOUND));
-
-        // 댓글의 작성자와 현재 로그인된 사용자가 일치하지 않을 시, 수정 불가
-        if (!comment.getUser().getId().equals(userId)){
-            throw new BusinessException(ErrorCode.NOT_COMMENT_OWNER);
-        }
+        // comment Id, userId 를 통해 가져온 comment
+        Comment comment = commentRepository.findByIdAndUserId(commentId, userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_COMMENT_OWNER));
 
         comment.update(
                 request.getContent()
@@ -200,13 +185,12 @@ public class CommentService {
         if (userId == null) {
             throw new BusinessException(ErrorCode.UNAUTHORIZED);
         }
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(()->new BusinessException(ErrorCode.COMMENT_NOT_FOUND));
-        if(!comment.getUser().getId().equals(userId)){
-            throw new BusinessException(ErrorCode.NOT_COMMENT_OWNER);
-        }
+        // post 까지 같이 가져오므로 post 추가 조회를 줄일 수 있음
+        Comment comment = commentRepository.findByIdAndUserIdWithPost(commentId, userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_COMMENT_OWNER));
+
         Post post = comment.getPost();
-        post.decreaseCommentCount();
         commentRepository.delete(comment);
+        postRepository.decreaseCommentCount(post.getId());
     }
 }

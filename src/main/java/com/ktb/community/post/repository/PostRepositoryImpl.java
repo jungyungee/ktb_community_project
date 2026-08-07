@@ -58,4 +58,50 @@ public class PostRepositoryImpl implements PostRepositoryCustom{
                 .where(post.id.eq(id))
                 .execute();
     }
+
+    // 좋아요 수 증가 로직 - 원자적 DB 업데이트
+    @Override
+    public long increaseLikeCount(Long id) {
+        return queryFactory
+                .update(post)
+                .set(post.likeCount, post.likeCount.add(1))
+                .where(post.id.eq(id))
+                .execute();
+    }
+
+    // 좋아요 수 감소 로직 - 원자적 DB 업데이트
+    @Override
+    public long decreaseLikeCount(Long id) {
+        return queryFactory
+                .update(post)
+                .set(post.likeCount, post.likeCount.subtract(1))
+                .where(
+                        post.id.eq(id),
+                        post.likeCount.gt(0)
+                )
+                .execute();
+    }
+
+    // 댓글 수 증가 로직 - 원자적 DB 업데이트
+    @Override
+    public long increaseCommentCount(Long id) {
+        return queryFactory
+                .update(post)
+                .set(post.commentCount, post.commentCount.add(1))
+                .where(post.id.eq(id))
+                .execute();
+    }
+
+    // 댓글 수 감소 로직 - 원자적 DB 업데이트
+    @Override
+    public long decreaseCommentCount(Long id) {
+        return queryFactory
+                .update(post)
+                .set(post.commentCount, post.commentCount.subtract(1))
+                .where(
+                        post.id.eq(id),
+                        post.commentCount.gt(0)
+                )
+                .execute();
+    }
 }

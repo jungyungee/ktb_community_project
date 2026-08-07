@@ -1,5 +1,6 @@
 package com.ktb.community.post.service;
 
+import com.ktb.community.comment.repository.CommentRepository;
 import com.ktb.community.global.exception.BusinessException;
 import com.ktb.community.global.exception.ErrorCode;
 import com.ktb.community.like.repository.LikeRepository;
@@ -10,6 +11,7 @@ import com.ktb.community.post.repository.PostViewHistoryRepository;
 import com.ktb.community.user.entity.User;
 import com.ktb.community.post.entity.Post;
 import com.ktb.community.post.repository.PostRepository;
+import com.ktb.community.user.mapper.AuthorResponseMapper;
 import com.ktb.community.user.repository.UserRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
@@ -31,6 +33,8 @@ public class PostService {
     private final PostViewHistoryService postViewHistoryService;
     private final EntityManager entityManager;
     private final PostViewHistoryRepository postViewHistoryRepository;
+    private final CommentRepository commentRepository;
+    private final AuthorResponseMapper authorResponseMapper;
 
     // 유저 Id에 따라 로그인 한 유저를 확인
     // (필터에서 userId가 request에 저장되어 있음)
@@ -120,10 +124,7 @@ public class PostService {
                         post.getCommentCount(),
                         post.getViewCount(),
                         post.getCreatedAt(),
-                        new PostAuthorResponse(
-                                post.getUser().getNickname(),
-                                post.getUser().getProfileImageUrl()
-                        )
+                        authorResponseMapper.toPostAuthorResponse(post.getUser())
                 ))
                 .toList();
 
@@ -209,10 +210,7 @@ public class PostService {
                 latestPost.getContent(),
                 latestPost.getPostImageUrl(),
                 latestPost.getCreatedAt(),
-                new PostAuthorResponse(
-                        latestPost.getUser().getNickname(),
-                        latestPost.getUser().getProfileImageUrl()
-                ),
+                authorResponseMapper.toPostAuthorResponse(latestPost.getUser()),
                 latestPost.getLikeCount(),
                 latestPost.getCommentCount(),
                 latestPost.getViewCount(),
@@ -263,6 +261,10 @@ public class PostService {
         if (!post.getUser().getId().equals(userId)){
             throw new BusinessException(ErrorCode.NOT_POST_OWNER);
         }
+        // 게시글 삭제 전 연관 데이터 삭제
+        commentRepository.deleteByPostId(postId);
+        likeRepository.deleteByPostId(postId);
+        postViewHistoryRepository.deleteByPostId(postId);
         // 게시글 삭제
         postRepository.delete(post);
     }

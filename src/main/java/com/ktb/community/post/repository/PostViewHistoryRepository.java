@@ -11,6 +11,8 @@ import java.time.LocalDateTime;
 
 public interface PostViewHistoryRepository extends JpaRepository<PostViewHistory, Long> {
 
+    // 조회수 관련 로직들
+
     // post_view_history 테이블에
     // 저장되어 있던 마지막 조회 시간이
     // 현재 시간 - 1분보다 작거나 같으면
@@ -63,4 +65,13 @@ public interface PostViewHistoryRepository extends JpaRepository<PostViewHistory
             @Param("viewerId") String viewerId,
             @Param("now") LocalDateTime now
     );
+
+    // 게시글 삭제 -> 해당 게시글과 관련된 조회 기록 데이터 삭제
+    // @Query 사용한 JPQL Bulk delete
+    @Modifying(flushAutomatically = true)
+    @Query("""
+        DELETE FROM PostViewHistory pvh
+        WHERE pvh.post.id = :postId
+    """)
+    int deleteByPostId(@Param("postId") Long postId);
 }

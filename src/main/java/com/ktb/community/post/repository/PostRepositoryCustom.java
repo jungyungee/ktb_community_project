@@ -17,4 +17,16 @@ public interface PostRepositoryCustom {
 
     // 조회수 증가 원자적 업데이트 메서드
     long increaseViewCount(Long id);
+
+    // 좋아요 수 증가 원자적 업데이트 메서드
+    long increaseLikeCount(Long id);
+
+    // 좋아요 수 감소 원자적 업데이트 메서드
+    long decreaseLikeCount(Long id);
+
+    // 댓글 수 증가 원자적 업데이트 메서드
+    long increaseCommentCount(Long id);
+
+    // 댓글 수 감소 원자적 업데이트 메서드
+    long decreaseCommentCount(Long id);
 }
