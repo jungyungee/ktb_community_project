@@ -166,13 +166,7 @@ public class CommentService {
 
         // comment Id, userId 를 통해 가져온 comment
         Comment comment = commentRepository.findByIdAndUserId(commentId, userId)
-                .orElseThrow(() -> {
-                    if (!commentRepository.existsById(commentId)) {
-                        return new BusinessException(ErrorCode.COMMENT_NOT_FOUND);
-                    }
-                    // 댓글의 작성자와 현재 로그인된 사용자가 일치하지 않을 시, 수정 불가
-                    return new BusinessException(ErrorCode.NOT_COMMENT_OWNER);
-                });
+즈                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_COMMENT_OWNER));
 
         comment.update(
                 request.getContent()
@@ -193,12 +187,7 @@ public class CommentService {
         }
         // post 까지 같이 가져오므로 post 추가 조회를 줄일 수 있음
         Comment comment = commentRepository.findByIdAndUserIdWithPost(commentId, userId)
-                .orElseThrow(() -> {
-                    if (!commentRepository.existsById(commentId)) {
-                        return new BusinessException(ErrorCode.COMMENT_NOT_FOUND);
-                    }
-                    return new BusinessException(ErrorCode.NOT_COMMENT_OWNER);
-                });
+                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_COMMENT_OWNER));
 
         Post post = comment.getPost();
         post.decreaseCommentCount();
