@@ -11,7 +11,8 @@ import java.util.Optional;
 public interface CommentRepository extends JpaRepository<Comment, Long>, CommentRepositoryCustom{
     // 게시글 삭제 -> 해당 게시글에 연관된 댓글 삭제
     // @Query 사용한 JPQL Bulk delete
-    @Modifying
+    // 삭제 쿼리 실행 전 변경사항이 있다면 먼저 DB에 반영하기 위해 flushAutomatically 사용
+    @Modifying(flushAutomatically = true)
     @Query("""
         DELETE FROM Comment c
         WHERE c.post.id = :postId

@@ -18,7 +18,7 @@ public interface LikeRepository extends JpaRepository<Like, Long> {
 
     // 게시글 삭제 -> 연관 좋아요 데이터 삭제
     // @Query 사용한 JPQL Bulk delete
-    @Modifying
+    @Modifying(flushAutomatically = true)
     @Query("""
         DELETE FROM Like l
         WHERE l.post.id = :postId

@@ -68,7 +68,7 @@ public interface PostViewHistoryRepository extends JpaRepository<PostViewHistory
 
     // 게시글 삭제 -> 해당 게시글과 관련된 조회 기록 데이터 삭제
     // @Query 사용한 JPQL Bulk delete
-    @Modifying
+    @Modifying(flushAutomatically = true)
     @Query("""
         DELETE FROM PostViewHistory pvh
         WHERE pvh.post.id = :postId
