@@ -91,5 +91,10 @@ public class Post {
     // 게시글 댓글 수 카운팅
     public void increaseCommentCount() { this.commentCount++; }
 
-    public void decreaseCommentCount() { this.commentCount--; }
+    // 게시글 댓글 수 음수 막기
+    public void decreaseCommentCount() {
+        if (this.commentCount > 0) {
+            this.commentCount--;
+        }
+    }
 }
