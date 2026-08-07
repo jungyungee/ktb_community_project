@@ -1,13 +1,18 @@
 package com.ktb.community.post.controller;
 
+import com.ktb.community.global.cookie.VisitorCookieManager;
 import com.ktb.community.global.response.ApiResponse;
 import com.ktb.community.post.dto.*;
+import com.ktb.community.post.entity.ViewerType;
 import com.ktb.community.post.service.PostService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/posts")
@@ -17,6 +22,8 @@ public class PostController {
     // 게시글 post 요청이 오면, postService를 호출
     // final 로 입력값 고정
     private final PostService postService;
+    // 쿠키 관련 컴포넌트 주입
+    private final VisitorCookieManager visitorCookieManager;
 
     // 클라이언트가 보낸 JSON을 PostRequest로 받고
     // postService 의 메서드를 호출해서 비즈니스 로직 수행, 디비에 저장 및 업데이트
@@ -48,10 +55,31 @@ public class PostController {
     public ApiResponse<PostDetailResponse> getPost(
             // 게시글 id를 전달해야함
             @PathVariable Long postId,
-            HttpServletRequest servletRequest
+            HttpServletRequest servletRequest,
+            HttpServletResponse servletResponse
     ){
         Long userId = (Long) servletRequest.getAttribute("userId");
-        PostDetailResponse response = postService.getPost(userId, postId);
+        // 비회원 조회도 허용함에 따라서 타입에 따라 다른 처리 필요
+        ViewerType viewerType;
+        String viewerId;
+
+        if (userId != null){
+            // 로그인한 회원
+            viewerType = ViewerType.USER;
+            viewerId = String.valueOf(userId);
+        } else {
+            // 로그인하지 않은 조회 = 비회원 간주
+            viewerType = ViewerType.VISITOR;
+            viewerId = visitorCookieManager.findVisitorId(servletRequest); // 비회원의 경우 쿠키에 이전 조회 내역이 있는지
+
+            // 쿠키에 이전 조회 내역이 없다면
+            if (viewerId == null){
+                viewerId = UUID.randomUUID().toString();
+                visitorCookieManager.addVisitorIdCookie(servletResponse, viewerId);
+            }
+        }
+
+        PostDetailResponse response = postService.getPost(userId, postId, viewerType, viewerId);
         return new ApiResponse<>("post_fetched", response);
     }
 

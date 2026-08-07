@@ -14,4 +14,7 @@ public interface PostRepositoryCustom {
             Long id,
             int size
     );
+
+    // 조회수 증가 원자적 업데이트 메서드
+    long increaseViewCount(Long id);
 }

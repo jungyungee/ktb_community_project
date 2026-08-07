@@ -14,11 +14,11 @@ import java.util.List;
 // PostRepositoryCustom의 구현체 (Spring Data JPA Convention)
 public class PostRepositoryImpl implements PostRepositoryCustom{
     private final JPAQueryFactory queryFactory;
+
     // cursor (이전 마지막 게시글) 이 없으면 최신순으로 처음부터 조회
     // cursor 있으면 그 다음부터 createdAt, id 두 조건을 이용해 조회
     // createdAt DESC, id DESC 정렬
     // 다음을 위해 (hasNext) 를 주기 위해 size+1 개 조회
-
     @Override
     public List<Post> findPostsByCursor(LocalDateTime createdAt, Long id, int size) {
         // Where 절을 위한 객체 생성
@@ -46,5 +46,15 @@ public class PostRepositoryImpl implements PostRepositoryCustom{
                 )
                 .limit(size + 1)
                 .fetch();
+    }
+
+    // 조회수 증가 로직 - 원자적 DB 업데이트
+    @Override
+    public long increaseViewCount(Long id) {
+        return queryFactory
+                .update(post)
+                .set(post.viewCount, post.viewCount.add(1))
+                .where(post.id.eq(id))
+                .execute();
     }
 }
