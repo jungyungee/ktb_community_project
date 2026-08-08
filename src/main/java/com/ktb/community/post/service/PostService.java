@@ -53,6 +53,7 @@ public class PostService {
         // User 객체에 userId를 통해 user 찾아서 저장
         User user = userRepository.findById(userId)
                 .orElseThrow(()-> new BusinessException(ErrorCode.USER_NOT_FOUND));
+        // 요청으로 전달된 코드가 실제 등록된 카테고리인지 확인
         PostCategory category = findCategory(request.getCategoryCode());
 
         // Post 엔티티 생성
@@ -81,6 +82,7 @@ public class PostService {
     // 게시글 조회 로직
     public PostListResponse getPostList(String cursor, String categoryCode) {
         int size = 10; // 길이 10
+        // 소문자 코드도 처리할 수 있도록 대문자로 변환하고 존재 여부 확인
         String normalizedCategoryCode = normalizeCategoryCode(categoryCode);
         if (normalizedCategoryCode != null) {
             findCategory(normalizedCategoryCode);
@@ -250,6 +252,7 @@ public class PostService {
         }
 
         if (request.getCategoryCode() != null) {
+            // 수정 요청에 카테고리가 포함된 경우에만 게시판 변경
             post.changeCategory(findCategory(request.getCategoryCode()));
         }
 
@@ -287,12 +290,14 @@ public class PostService {
         postRepository.delete(post);
     }
 
+    // 카테고리 코드를 이용해 엔티티를 조회하고 없으면 예외 처리
     private PostCategory findCategory(String categoryCode) {
         String normalizedCategoryCode = normalizeCategoryCode(categoryCode);
         return postCategoryRepository.findByCode(normalizedCategoryCode)
                 .orElseThrow(() -> new BusinessException(ErrorCode.POST_CATEGORY_NOT_FOUND));
     }
 
+    // API에서 전달된 카테고리 코드의 공백과 대소문자 정규화
     private String normalizeCategoryCode(String categoryCode) {
         if (categoryCode == null || categoryCode.isBlank()) {
             return null;
@@ -300,6 +305,7 @@ public class PostService {
         return categoryCode.trim().toUpperCase(Locale.ROOT);
     }
 
+    // 카테고리 엔티티를 응답 DTO로 변환
     private PostCategoryResponse toCategoryResponse(PostCategory category) {
         if (category == null) {
             return null;

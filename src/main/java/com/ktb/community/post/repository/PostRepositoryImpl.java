@@ -36,6 +36,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom{
             );
         }
 
+        // 카테고리 코드가 전달되면 해당 게시판의 게시글만 조회
         if (categoryCode != null) {
             condition.and(post.category.code.eq(categoryCode));
         }

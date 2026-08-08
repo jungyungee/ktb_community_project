@@ -20,6 +20,7 @@ public class Post {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    // 게시글이 속한 게시판 종류
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private PostCategory category;
@@ -57,6 +58,7 @@ public class Post {
         this.postImageUrl = postImageUrl;
     }
 
+    // 게시글 수정 시 카테고리 변경
     public void changeCategory(PostCategory category) {
         this.category = category;
     }
