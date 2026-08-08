@@ -7,6 +7,9 @@ import lombok.Getter;
 @Getter
 public class PostRequest {
     @NotBlank
+    private String categoryCode;
+
+    @NotBlank
     private String title;
 
     @NotBlank

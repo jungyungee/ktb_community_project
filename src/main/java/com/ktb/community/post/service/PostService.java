@@ -7,6 +7,8 @@ import com.ktb.community.like.repository.LikeRepository;
 import com.ktb.community.post.cursor.PostCursor;
 import com.ktb.community.post.dto.*;
 import com.ktb.community.post.entity.ViewerType;
+import com.ktb.community.post.entity.PostCategory;
+import com.ktb.community.post.repository.PostCategoryRepository;
 import com.ktb.community.post.repository.PostViewHistoryRepository;
 import com.ktb.community.user.entity.User;
 import com.ktb.community.post.entity.Post;
@@ -22,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
+import java.util.Locale;
 
 // 게시물 저장 관련 비즈니스 로직 수행
 @Service
@@ -35,6 +38,7 @@ public class PostService {
     private final PostViewHistoryRepository postViewHistoryRepository;
     private final CommentRepository commentRepository;
     private final AuthorResponseMapper authorResponseMapper;
+    private final PostCategoryRepository postCategoryRepository;
 
     // 유저 Id에 따라 로그인 한 유저를 확인
     // (필터에서 userId가 request에 저장되어 있음)
@@ -49,10 +53,12 @@ public class PostService {
         // User 객체에 userId를 통해 user 찾아서 저장
         User user = userRepository.findById(userId)
                 .orElseThrow(()-> new BusinessException(ErrorCode.USER_NOT_FOUND));
+        PostCategory category = findCategory(request.getCategoryCode());
 
         // Post 엔티티 생성
         Post post = new Post(
                 user,
+                category,
                 request.getTitle(),
                 request.getContent(),
                 request.getPostImageUrl()
@@ -64,6 +70,7 @@ public class PostService {
         // 응답 반환
         return new PostResponse(
                 savedPost.getId(),
+                toCategoryResponse(savedPost.getCategory()),
                 savedPost.getTitle(),
                 savedPost.getContent(),
                 savedPost.getPostImageUrl(),
@@ -72,8 +79,12 @@ public class PostService {
     }
 
     // 게시글 조회 로직
-    public PostListResponse getPostList(String cursor) {
+    public PostListResponse getPostList(String cursor, String categoryCode) {
         int size = 10; // 길이 10
+        String normalizedCategoryCode = normalizeCategoryCode(categoryCode);
+        if (normalizedCategoryCode != null) {
+            findCategory(normalizedCategoryCode);
+        }
         // 첫 페이지 경우 생각해서 null로 넣음
         LocalDateTime cursorCreatedAt = null;
         Long cursorId = null;
@@ -91,7 +102,8 @@ public class PostService {
         List<Post> posts = postRepository.findPostsByCursor(
                 cursorCreatedAt,
                 cursorId,
-                size
+                size,
+                normalizedCategoryCode
         );
 
         // 마지막 리스트인지 확인
@@ -119,6 +131,7 @@ public class PostService {
         List<PostItemResponse> content = posts.stream()
                 .map(post -> new PostItemResponse(
                         post.getId(),
+                        toCategoryResponse(post.getCategory()),
                         post.getTitle(),
                         post.getLikeCount(),
                         post.getCommentCount(),
@@ -206,6 +219,7 @@ public class PostService {
 
         return new PostDetailResponse(
                 latestPost.getId(),
+                toCategoryResponse(latestPost.getCategory()),
                 latestPost.getTitle(),
                 latestPost.getContent(),
                 latestPost.getPostImageUrl(),
@@ -233,6 +247,10 @@ public class PostService {
         // 게시글의 작성자와 현재 로그인된 사용자가 일치하지 않을 시, 수정 불가
         if (!post.getUser().getId().equals(userId)){
             throw new BusinessException(ErrorCode.NOT_POST_OWNER);
+        }
+
+        if (request.getCategoryCode() != null) {
+            post.changeCategory(findCategory(request.getCategoryCode()));
         }
 
         // 업데이트 메서드
@@ -267,5 +285,25 @@ public class PostService {
         postViewHistoryRepository.deleteByPostId(postId);
         // 게시글 삭제
         postRepository.delete(post);
+    }
+
+    private PostCategory findCategory(String categoryCode) {
+        String normalizedCategoryCode = normalizeCategoryCode(categoryCode);
+        return postCategoryRepository.findByCode(normalizedCategoryCode)
+                .orElseThrow(() -> new BusinessException(ErrorCode.POST_CATEGORY_NOT_FOUND));
+    }
+
+    private String normalizeCategoryCode(String categoryCode) {
+        if (categoryCode == null || categoryCode.isBlank()) {
+            return null;
+        }
+        return categoryCode.trim().toUpperCase(Locale.ROOT);
+    }
+
+    private PostCategoryResponse toCategoryResponse(PostCategory category) {
+        if (category == null) {
+            return null;
+        }
+        return new PostCategoryResponse(category.getCode(), category.getName());
     }
 }

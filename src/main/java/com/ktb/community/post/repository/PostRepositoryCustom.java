@@ -12,7 +12,8 @@ public interface PostRepositoryCustom {
     List<Post> findPostsByCursor(
             LocalDateTime createdAt,
             Long id,
-            int size
+            int size,
+            String categoryCode
     );
 
     // 조회수 증가 원자적 업데이트 메서드

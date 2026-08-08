@@ -44,9 +44,10 @@ public class PostController {
     @GetMapping
     public ApiResponse<PostListResponse> getPostList(
             // uri 의 파라미터로 받은 커서 값 String cursor에 저장 (디코딩은 서비스 로직에서)
-            @RequestParam(required = false) String cursor
+            @RequestParam(required = false) String cursor,
+            @RequestParam(required = false) String categoryCode
     ){
-        PostListResponse response = postService.getPostList(cursor);
+        PostListResponse response = postService.getPostList(cursor, categoryCode);
         return new ApiResponse<>("post_list_fetched", response);
     }
 

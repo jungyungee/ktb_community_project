@@ -20,7 +20,7 @@ public class PostRepositoryImpl implements PostRepositoryCustom{
     // createdAt DESC, id DESC 정렬
     // 다음을 위해 (hasNext) 를 주기 위해 size+1 개 조회
     @Override
-    public List<Post> findPostsByCursor(LocalDateTime createdAt, Long id, int size) {
+    public List<Post> findPostsByCursor(LocalDateTime createdAt, Long id, int size, String categoryCode) {
         // Where 절을 위한 객체 생성
         BooleanBuilder condition = new BooleanBuilder();
 
@@ -36,10 +36,15 @@ public class PostRepositoryImpl implements PostRepositoryCustom{
             );
         }
 
+        if (categoryCode != null) {
+            condition.and(post.category.code.eq(categoryCode));
+        }
+
         // post에서 위에 정의한 condition에 맞게 가져오고, 정렬해서 내보내기
         return queryFactory
                 .selectFrom(post)
                 .join(post.user).fetchJoin()
+                .leftJoin(post.category).fetchJoin()
                 .where(condition)
                 .orderBy(
                         post.createdAt.desc(),

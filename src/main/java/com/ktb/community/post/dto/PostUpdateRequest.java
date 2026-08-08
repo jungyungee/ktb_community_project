@@ -6,6 +6,8 @@ import lombok.Getter;
 
 @Getter
 public class PostUpdateRequest {
+    private String categoryCode;
+
     private String title;
     private String content;
 

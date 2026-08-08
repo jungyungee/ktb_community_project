@@ -20,6 +20,10 @@ public class Post {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private PostCategory category;
+
     @Column(nullable = false, length = 26)
     private String title;
 
@@ -45,11 +49,16 @@ public class Post {
     private LocalDateTime updatedAt;
 
     // 게시글 작성용 생성자 정의
-    public Post(User user, String title, String content, String postImageUrl) {
+    public Post(User user, PostCategory category, String title, String content, String postImageUrl) {
         this.user = user;
+        this.category = category;
         this.title = title;
         this.content = content;
         this.postImageUrl = postImageUrl;
+    }
+
+    public void changeCategory(PostCategory category) {
+        this.category = category;
     }
 
     // 게시글 수정
