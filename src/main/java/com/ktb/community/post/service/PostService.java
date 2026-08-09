@@ -135,6 +135,8 @@ public class PostService {
                         post.getId(),
                         toCategoryResponse(post.getCategory()),
                         post.getTitle(),
+                        // 상세 조회와 동일한 게시글 이미지 URL을 목록 응답에도 포함
+                        post.getPostImageUrl(),
                         post.getLikeCount(),
                         post.getCommentCount(),
                         post.getViewCount(),

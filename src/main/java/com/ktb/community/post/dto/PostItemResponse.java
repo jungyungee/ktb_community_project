@@ -12,6 +12,8 @@ public class PostItemResponse {
     private Long id;
     private PostCategoryResponse category;
     private String title;
+    // 목록 피드에서도 게시글 대표 이미지를 표시할 수 있도록 이미지 URL 전달
+    private String postImageUrl;
     private Integer likeCount;
     private Integer commentCount;
     private Integer viewCount;
