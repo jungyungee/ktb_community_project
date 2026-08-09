@@ -69,9 +69,11 @@ https://github.com/user-attachments/assets/dbd216d5-8020-4e57-ae1d-73f2d049f217
 | --- | --- |
 | Language | Java 21 |
 | Framework | Spring Boot 4, Spring MVC |
-| Data | Spring Data JPA, QueryDSL, MySQL 8 |
+| ORM / Query | Spring Data JPA, QueryDSL |
+| Database | MySQL 8, Amazon RDS |
 | Security | JWT, BCrypt |
-| Storage | AWS S3, Presigned URL |
+| File Storage | Amazon S3 |
+| Image Upload | S3 Presigned URL |
 | Build | Gradle 9 |
 | Infra | Docker, Kubernetes, Helm, Traefik |
 | CI | GitHub Actions |
@@ -88,15 +90,15 @@ https://github.com/user-attachments/assets/dbd216d5-8020-4e57-ae1d-73f2d049f217
 </div>
 
 
-## Architecture
+## Infrastructure Architecture
 
 <div align="center">
 
-<img width="584" height="566" alt="architecture" src="https://github.com/user-attachments/assets/9bfd1804-6f97-4ee0-94a1-7464f4cb35ea" />
+<img width="584" height="566" alt="TRIPFEED AWS 인프라 아키텍처" src="https://github.com/user-attachments/assets/9bfd1804-6f97-4ee0-94a1-7464f4cb35ea" />
 
 </div>
 
-백엔드 애플리케이션은 도메인 단위의 `controller → service → repository` 구조를 따릅니다. 공통 인증, 예외, 응답 처리는 `global` 영역에서 관리합니다.
+프론트엔드는 Public Subnet의 EC2에서, 백엔드는 Private Subnet의 Kubernetes 클러스터에서 운영합니다. 사용자 요청은 Route 53과 Application Load Balancer를 거쳐 각 서비스로 전달되며, 데이터는 Amazon RDS에 저장합니다. 이미지는 S3 Presigned URL을 이용해 클라이언트에서 Amazon S3로 직접 업로드합니다.
 
 
 ## API Overview
@@ -135,6 +137,8 @@ https://github.com/user-attachments/assets/dbd216d5-8020-4e57-ae1d-73f2d049f217
 </details>
 
 ## Project Structure
+
+백엔드 애플리케이션은 도메인 단위의 `controller → service → repository` 구조를 따릅니다. 공통 인증, 예외, 응답 처리는 `global` 영역에서 관리합니다.
 
 ```text
 src/main/java/com/ktb/community
