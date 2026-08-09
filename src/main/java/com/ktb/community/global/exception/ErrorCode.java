@@ -54,6 +54,10 @@ public enum ErrorCode {
             HttpStatus.BAD_REQUEST,
             "post_category_not_found"
     ),
+    INVALID_IMAGE_TYPE(
+            HttpStatus.BAD_REQUEST,
+            "invalid_image_type"
+    ),
     NOT_POST_OWNER(
             HttpStatus.FORBIDDEN,
             "not_post_owner"
