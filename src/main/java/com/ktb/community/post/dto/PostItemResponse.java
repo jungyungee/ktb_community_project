@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class PostItemResponse {
     private Long id;
+    private PostCategoryResponse category;
     private String title;
     private Integer likeCount;
     private Integer commentCount;

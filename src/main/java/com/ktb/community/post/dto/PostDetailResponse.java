@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 @Getter
 public class PostDetailResponse {
     private Long id;
+    private PostCategoryResponse category;
     private String title;
     private String content;
     private String postImageUrl;

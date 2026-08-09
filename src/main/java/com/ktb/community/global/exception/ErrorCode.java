@@ -50,6 +50,10 @@ public enum ErrorCode {
             HttpStatus.NOT_FOUND,
             "post_not_found"
     ),
+    POST_CATEGORY_NOT_FOUND(
+            HttpStatus.BAD_REQUEST,
+            "post_category_not_found"
+    ),
     NOT_POST_OWNER(
             HttpStatus.FORBIDDEN,
             "not_post_owner"

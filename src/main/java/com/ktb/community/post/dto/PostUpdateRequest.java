@@ -6,6 +6,9 @@ import lombok.Getter;
 
 @Getter
 public class PostUpdateRequest {
+    // null이면 기존 카테고리 유지
+    private String categoryCode;
+
     private String title;
     private String content;
 
